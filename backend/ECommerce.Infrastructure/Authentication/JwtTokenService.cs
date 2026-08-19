@@ -10,7 +10,7 @@ namespace ECommerce.Infrastructure.Authentication;
 
 public class JwtTokenService(IConfiguration configuration) : IJwtTokenService
 {
-    public (string Token, int ExpiresInSeconds) GenerateToken(User user)
+    public (string Token, int ExpiresInSeconds) GenerateToken(User user, Guid customerId)
     {
         var secret = configuration["JWT:Secret"]
             ?? throw new InvalidOperationException("JWT:Secret configuration is missing.");
@@ -21,6 +21,7 @@ public class JwtTokenService(IConfiguration configuration) : IJwtTokenService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role),
+            new Claim(AppClaimTypes.CustomerId, customerId.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

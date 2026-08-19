@@ -7,5 +7,9 @@ namespace ECommerce.Domain.Interfaces;
 // ECommerce.Infrastructure/Authentication.
 public interface IJwtTokenService
 {
-    (string Token, int ExpiresInSeconds) GenerateToken(User user);
+    // customerId: every User in this schema has a linked Customer row
+    // (created together at registration, see the seed data for admin too),
+    // so cart/order/review endpoints can read it straight from the token
+    // instead of doing a User->Customer lookup on every request.
+    (string Token, int ExpiresInSeconds) GenerateToken(User user, Guid customerId);
 }

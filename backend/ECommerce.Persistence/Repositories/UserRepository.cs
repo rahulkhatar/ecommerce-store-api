@@ -7,7 +7,8 @@ namespace ECommerce.Persistence.Repositories;
 public class UserRepository(ECommerceDbContext context) : IUserRepository
 {
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
-        => context.Users.FirstOrDefaultAsync(u => u.Email == email && u.IsDeleted != true, cancellationToken);
+        => context.Users.Include(u => u.Customer)
+            .FirstOrDefaultAsync(u => u.Email == email && u.IsDeleted != true, cancellationToken);
 
     public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => context.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsDeleted != true, cancellationToken);

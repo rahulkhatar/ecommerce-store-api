@@ -48,7 +48,7 @@ public class RegisterCommandHandler(
         await userRepository.AddWithCustomerAsync(user, customer, cancellationToken);
         await userRepository.SaveChangesAsync(cancellationToken);
 
-        var (token, expiresIn) = jwtTokenService.GenerateToken(user);
+        var (token, expiresIn) = jwtTokenService.GenerateToken(user, customer.Id);
         return new AuthResponseDto(token, expiresIn, new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.Role));
     }
 }
