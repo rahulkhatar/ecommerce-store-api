@@ -4,6 +4,13 @@
 USE ECommerceDB;
 GO
 
+-- sqlcmd's default session has QUOTED_IDENTIFIER OFF; several tables here
+-- have filtered indexes, which require it ON for INSERT too (not just
+-- CREATE INDEX). This is a separate sqlcmd connection from the migration
+-- script, so the setting doesn't carry over - set it again here.
+SET QUOTED_IDENTIFIER ON;
+GO
+
 -- ============================================
 -- 1. CREATE ADMIN USER
 -- ============================================
@@ -463,14 +470,24 @@ GO
 -- ============================================
 -- Verify Seed Data
 -- ============================================
+-- PRINT does not allow a subquery directly in its expression (Msg 1046) -
+-- assign each count to a variable first, then PRINT the variable.
+DECLARE @UserCount INT = (SELECT COUNT(*) FROM [dbo].[Users]);
+DECLARE @CategoryCount INT = (SELECT COUNT(*) FROM [dbo].[Categories]);
+DECLARE @ProductCount INT = (SELECT COUNT(*) FROM [dbo].[Products]);
+DECLARE @CustomerCount INT = (SELECT COUNT(*) FROM [dbo].[Customers]);
+DECLARE @OrderCount INT = (SELECT COUNT(*) FROM [dbo].[Orders]);
+DECLARE @ReviewCount INT = (SELECT COUNT(*) FROM [dbo].[Reviews]);
+DECLARE @KnowledgeBaseCount INT = (SELECT COUNT(*) FROM [dbo].[AIKnowledgeBase]);
+
 PRINT '===== SEED DATA SUMMARY =====';
-PRINT 'Total Users: ' + CAST((SELECT COUNT(*) FROM [dbo].[Users]) AS NVARCHAR(10));
-PRINT 'Total Categories: ' + CAST((SELECT COUNT(*) FROM [dbo].[Categories]) AS NVARCHAR(10));
-PRINT 'Total Products: ' + CAST((SELECT COUNT(*) FROM [dbo].[Products]) AS NVARCHAR(10));
-PRINT 'Total Customers: ' + CAST((SELECT COUNT(*) FROM [dbo].[Customers]) AS NVARCHAR(10));
-PRINT 'Total Orders: ' + CAST((SELECT COUNT(*) FROM [dbo].[Orders]) AS NVARCHAR(10));
-PRINT 'Total Reviews: ' + CAST((SELECT COUNT(*) FROM [dbo].[Reviews]) AS NVARCHAR(10));
-PRINT 'Knowledge Base Items: ' + CAST((SELECT COUNT(*) FROM [dbo].[AIKnowledgeBase]) AS NVARCHAR(10));
+PRINT 'Total Users: ' + CAST(@UserCount AS NVARCHAR(10));
+PRINT 'Total Categories: ' + CAST(@CategoryCount AS NVARCHAR(10));
+PRINT 'Total Products: ' + CAST(@ProductCount AS NVARCHAR(10));
+PRINT 'Total Customers: ' + CAST(@CustomerCount AS NVARCHAR(10));
+PRINT 'Total Orders: ' + CAST(@OrderCount AS NVARCHAR(10));
+PRINT 'Total Reviews: ' + CAST(@ReviewCount AS NVARCHAR(10));
+PRINT 'Knowledge Base Items: ' + CAST(@KnowledgeBaseCount AS NVARCHAR(10));
 PRINT '=============================';
 PRINT 'Seed data successfully created!';
 GO

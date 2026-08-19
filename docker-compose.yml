@@ -12,7 +12,10 @@ services:
       SA_PASSWORD: Reset@789
       MSSQL_PID: Standard
     ports:
-      - "1433:1433"
+      # Host port 14333 (not 1433) to avoid clashing with other local/Docker
+      # SQL Server instances on this machine. Container-to-container traffic
+      # (api -> mssql) is unaffected since it uses the internal network on 1433.
+      - "14333:1433"
     volumes:
       # Mount migration scripts
       - ./database/migrations:/scripts/migrations
@@ -20,7 +23,7 @@ services:
       # Persist database data
       - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "(command -v sqlcmd || echo /opt/mssql-tools18/bin/sqlcmd) -S localhost -U sa -P Reset@789 -C -Q 'SELECT 1' || (/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Reset@789 -Q 'SELECT 1')"]
+      test: ["CMD-SHELL", "if [ -x /opt/mssql-tools18/bin/sqlcmd ]; then C=/opt/mssql-tools18/bin/sqlcmd; ARGS='-C'; elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then C=/opt/mssql-tools/bin/sqlcmd; ARGS=''; else C=sqlcmd; ARGS='-C'; fi; $$C -S localhost -U sa -P Reset@789 $$ARGS -b -Q 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -34,9 +37,14 @@ services:
       SQLCMD=$$(command -v sqlcmd 2>/dev/null || true);
       [ -z "$$SQLCMD" ] && [ -x /opt/mssql-tools18/bin/sqlcmd ] && SQLCMD=/opt/mssql-tools18/bin/sqlcmd;
       [ -z "$$SQLCMD" ] && SQLCMD=/opt/mssql-tools/bin/sqlcmd;
-      for i in $$(seq 1 30); do $$SQLCMD -S localhost -U sa -P Reset@789 -C -Q "SELECT 1" >/dev/null 2>&1 && break; sleep 2; done &&
-      $$SQLCMD -S localhost -U sa -P Reset@789 -C -i /scripts/migrations/001_InitialSchema.sql &&
-      $$SQLCMD -S localhost -U sa -P Reset@789 -C -i /scripts/seeds/001_SeedInitialData.sql;
+      for i in $$(seq 1 60); do $$SQLCMD -S localhost -U sa -P Reset@789 -C -b -Q "SELECT 1" >/dev/null 2>&1 && break; sleep 2; done;
+      ATTEMPT=1;
+      until $$SQLCMD -S localhost -U sa -P Reset@789 -C -b -i /scripts/migrations/001_InitialSchema.sql && $$SQLCMD -S localhost -U sa -P Reset@789 -C -b -i /scripts/seeds/001_SeedInitialData.sql; do
+      ATTEMPT=$$((ATTEMPT+1));
+      if [ $$ATTEMPT -gt 5 ]; then echo "Migration/seed failed after 5 attempts, giving up."; break; fi;
+      echo "Migration/seed attempt failed (likely still recovering an existing database) - retrying in 10s (attempt $$ATTEMPT/5)...";
+      sleep 10;
+      done;
       wait $$PID'
 
   # ============================================

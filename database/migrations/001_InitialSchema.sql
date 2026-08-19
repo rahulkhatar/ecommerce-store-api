@@ -20,6 +20,12 @@ GO
 USE ECommerceDB;
 GO
 
+-- sqlcmd's default session has QUOTED_IDENTIFIER OFF, which breaks the
+-- filtered indexes (WHERE [IsDeleted] = 0, etc.) created below - SQL Server
+-- requires it ON for filtered/computed-column indexes.
+SET QUOTED_IDENTIFIER ON;
+GO
+
 -- ============================================
 -- 1. USERS TABLE
 -- ============================================
