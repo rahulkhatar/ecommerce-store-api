@@ -22,8 +22,9 @@ VALUES
 (
     @AdminUserId,
     'admin@ecommerce.com',
-    -- Password: Admin@123456 (bcrypt hash - replace with actual bcrypt hash in production)
-    '$2a$11$YourBcryptHashHere',
+    -- Password: Admin@123456 (real bcrypt hash, work factor 11 - matches
+    -- ECommerce.Infrastructure.Authentication.PasswordHasher's work factor)
+    '$2a$11$D/pAZ1mhRoW0Pcvx2EvPU.muiJQA7hmbJ3HOb8SkxvAi3DOaBop.G',
     'Admin',
     'User',
     'Admin',
@@ -226,7 +227,7 @@ VALUES
 (
     @Customer1UserId,
     'john.doe@example.com',
-    '$2a$11$CustomerHashHere1',
+    '$2a$11$e36xOOIRloqiWVKk7CDZx.YqIkOJY1nfx7cLUZzbAgj9fsEy4TFOS', -- Customer@123456
     'John',
     'Doe',
     'Customer',
@@ -248,7 +249,7 @@ VALUES
 (
     @Customer2UserId,
     'jane.smith@example.com',
-    '$2a$11$CustomerHashHere2',
+    '$2a$11$e36xOOIRloqiWVKk7CDZx.YqIkOJY1nfx7cLUZzbAgj9fsEy4TFOS', -- Customer@123456
     'Jane',
     'Smith',
     'Customer',
@@ -270,7 +271,7 @@ VALUES
 (
     @Customer3UserId,
     'michael.johnson@example.com',
-    '$2a$11$CustomerHashHere3',
+    '$2a$11$e36xOOIRloqiWVKk7CDZx.YqIkOJY1nfx7cLUZzbAgj9fsEy4TFOS', -- Customer@123456
     'Michael',
     'Johnson',
     'Customer',

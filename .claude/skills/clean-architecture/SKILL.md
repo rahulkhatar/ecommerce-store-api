@@ -211,6 +211,8 @@ public class OrderService : IOrderService
 ### 3. Infrastructure Layer (ECommerce.Infrastructure)
 **Responsibility**: External services, integrations
 
+**Correction to the examples below**: this project's `ECommerce.Infrastructure.csproj` references `ECommerce.Application` (per the "Rules" at the end of this section), so an interface declared *in* Infrastructure can never be called from an Application-layer handler without a circular project reference. The code samples below show `IEmailService`/`IPaymentGateway`/`IAIService` declared alongside their implementations in Infrastructure for brevity, but in this codebase **declare the interface in `ECommerce.Domain/Interfaces/` and keep only the concrete class in Infrastructure** (see `IPasswordHasher`/`IJwtTokenService` + their `PasswordHasher`/`JwtTokenService` implementations from the Auth slice for the actual pattern to copy). This is standard Dependency Inversion and is what makes the interface usable from Application command/query handlers.
+
 **Contains**:
 ```csharp
 // External Service Implementations
