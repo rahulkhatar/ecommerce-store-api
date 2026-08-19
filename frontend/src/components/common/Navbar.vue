@@ -35,7 +35,7 @@ function handleLogout() {
   <header class="sticky top-0 z-40 border-b border-white/10 bg-slate-900/70 text-white shadow-lg shadow-black/10 backdrop-blur-xl">
     <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
       <RouterLink :to="{ name: 'home' }" class="shrink-0 text-xl font-bold tracking-tight text-white">
-        ECommerce<span class="text-blue-400">Store</span>
+        E-Commerce <span class="text-blue-400">Store</span>
       </RouterLink>
 
       <form class="flex min-w-0 flex-1 items-stretch" @submit.prevent="handleSearch">
