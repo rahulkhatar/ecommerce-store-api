@@ -50,6 +50,12 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
+        // Without this, the handler silently remaps well-known short claim
+        // names (e.g. "sub") to the long ClaimTypes.* URIs when building the
+        // server-side ClaimsPrincipal, so User.FindFirstValue("sub") (see
+        // ClaimsPrincipalExtensions.GetUserId) would never find it even
+        // though the token issued by JwtTokenService clearly has "sub".
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
