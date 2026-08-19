@@ -81,6 +81,9 @@ public partial class ECommerceDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.SourceType).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(255);
+            // AIKnowledgeBase has no IsDeleted column - BaseEntity adds the
+            // property in C#, but nothing should try to persist it.
+            entity.Ignore(e => e.IsDeleted);
 
             entity.HasOne(d => d.Product).WithMany(p => p.AiknowledgeBases)
                 .HasForeignKey(d => d.ProductId)
@@ -123,6 +126,9 @@ public partial class ECommerceDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.MessageRole).HasMaxLength(50);
+            // ChatHistory has no UpdatedAt/IsDeleted columns (append-only log).
+            entity.Ignore(e => e.UpdatedAt);
+            entity.Ignore(e => e.IsDeleted);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.ChatHistories)
                 .HasForeignKey(d => d.CustomerId)
@@ -217,6 +223,11 @@ public partial class ECommerceDbContext : DbContext
                 .HasColumnType("decimal(5, 2)");
             entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            // OrderItems has no audit columns at all (immutable line items,
+            // cascade-deleted with the Order).
+            entity.Ignore(e => e.CreatedAt);
+            entity.Ignore(e => e.UpdatedAt);
+            entity.Ignore(e => e.IsDeleted);
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
@@ -314,6 +325,9 @@ public partial class ECommerceDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.IsMainImage).HasDefaultValue(false);
+            // ProductImages only has CreatedAt - no UpdatedAt/IsDeleted columns.
+            entity.Ignore(e => e.UpdatedAt);
+            entity.Ignore(e => e.IsDeleted);
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
                 .HasForeignKey(d => d.ProductId)
@@ -396,6 +410,8 @@ public partial class ECommerceDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.AddedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            // ShoppingCart uses AddedAt instead of CreatedAt - no CreatedAt column.
+            entity.Ignore(e => e.CreatedAt);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.ShoppingCarts)
                 .HasForeignKey(d => d.CustomerId)
@@ -443,6 +459,9 @@ public partial class ECommerceDbContext : DbContext
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
             entity.Property(e => e.AddedAt).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            // Wishlist uses AddedAt instead of CreatedAt, and has no UpdatedAt column.
+            entity.Ignore(e => e.CreatedAt);
+            entity.Ignore(e => e.UpdatedAt);
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Wishlists)
                 .HasForeignKey(d => d.CustomerId)
