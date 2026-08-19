@@ -73,6 +73,7 @@ services:
       JWT__ExpiryMinutes: 60
       OpenAI__ApiKey: ${OPENAI_API_KEY:-your-openai-api-key}
       OpenAI__Model: "gpt-4"
+      OpenAI__EmbeddingModel: "text-embedding-3-small"
       CorsOrigins: "http://localhost:5173,http://localhost:3000,http://localhost:8081"
       App__FrontendBaseUrl: "http://localhost:5173"
       Razorpay__KeyId: ${RAZORPAY_KEY_ID:-your_razorpay_key_id}
@@ -80,11 +81,23 @@ services:
       PayPal__BaseUrl: ${PAYPAL_BASE_URL:-https://api-m.sandbox.paypal.com}
       PayPal__ClientId: ${PAYPAL_CLIENT_ID:-your_paypal_client_id}
       PayPal__ClientSecret: ${PAYPAL_CLIENT_SECRET:-your_paypal_client_secret}
+      # Container-network addresses (unaffected by the host port remaps below).
+      Redis__ConnectionString: "redis:6379"
+      Elasticsearch__Url: "http://elasticsearch:9200"
     ports:
       - "5000:5000"
     depends_on:
       mssql:
         condition: service_healthy
+      # Not health-gated: both are best-effort dependencies (see
+      # RedisCacheService / the try/catch around search indexing) and
+      # Elasticsearch in particular can take a while to become healthy -
+      # the api shouldn't be blocked starting up just because search isn't
+      # ready yet.
+      redis:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
     volumes:
       - ./backend:/app
       # Anonymous volumes so each project's build output stays inside the
@@ -148,31 +161,45 @@ services:
       - ecommerce-network
 
   # ============================================
-  # Redis (Optional - for caching/sessions)
+  # Redis - product read cache (see ICacheService / ProductCacheKeys)
   # ============================================
   redis:
     image: redis:7-alpine
     container_name: ecommerce-redis
     ports:
-      - "6379:6379"
+      # Host 16379 (not 6379) - already taken by something else on this
+      # machine, same class of issue as the mssql/nginx port clashes.
+      # Container-to-container traffic (api -> redis) is unaffected.
+      - "16379:6379"
     volumes:
       - redis_data:/data
     networks:
       - ecommerce-network
 
   # ============================================
-  # Elasticsearch (Optional - for full-text search)
+  # Elasticsearch - hybrid product search (see IProductSearchService).
+  # Bumped from 8.5.0 to 8.19.x to match the .NET client's version
+  # (Elastic.Clients.Elasticsearch) and get modern dense_vector/RRF support.
   # ============================================
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.0
     container_name: ecommerce-elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      # Without an explicit cap, ES sizes its heap off host RAM, which is
+      # wasteful/risky for a single dev-machine index of a few products.
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
     networks:
       - ecommerce-network
 

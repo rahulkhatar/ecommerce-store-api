@@ -27,4 +27,11 @@ public class ProductsController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(new CreateProductCommand(dto));
         return CreatedAtAction(nameof(GetProduct), new { id = result.Id }, result);
     }
+
+    // Hybrid (keyword + vector) search via Elasticsearch - distinct from the
+    // plain SQL filtering GET /api/products does. See SearchProductsQuery.
+    [HttpGet("search")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<ProductSearchHitDto>>> Search([FromQuery] string q, [FromQuery] int top = 10)
+        => Ok(await mediator.Send(new SearchProductsQuery(q, top)));
 }

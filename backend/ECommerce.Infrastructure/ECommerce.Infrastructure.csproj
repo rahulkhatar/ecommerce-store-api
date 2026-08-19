@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Elastic.SemanticKernel.Connectors.Elasticsearch" Version="0.3.1" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.11" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
@@ -17,6 +20,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- SKEXP0020: Elastic.SemanticKernel.Connectors.Elasticsearch's VectorData
+         API surface (ElasticsearchCollection, HybridSearchAsync) is marked
+         [Experimental] pre-1.0 - deliberately used anyway for hybrid product
+         search (see Search/ElasticsearchProductSearchService.cs). -->
+    <NoWarn>$(NoWarn);SKEXP0020</NoWarn>
   </PropertyGroup>
 
 </Project>

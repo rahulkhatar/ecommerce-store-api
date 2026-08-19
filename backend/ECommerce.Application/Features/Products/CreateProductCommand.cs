@@ -4,6 +4,7 @@ using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Interfaces;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace ECommerce.Application.Features.Products;
 
@@ -14,7 +15,11 @@ public class CreateProductCommandValidator : AbstractValidator<CreateProductComm
     public CreateProductCommandValidator() => RuleFor(x => x.Dto).SetValidator(new CreateProductDtoValidator());
 }
 
-public class CreateProductCommandHandler(IProductRepository productRepository)
+public class CreateProductCommandHandler(
+    IProductRepository productRepository,
+    ICacheService cache,
+    IProductSearchService searchService,
+    ILogger<CreateProductCommandHandler> logger)
     : IRequestHandler<CreateProductCommand, ProductDto>
 {
     public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -64,7 +69,26 @@ public class CreateProductCommandHandler(IProductRepository productRepository)
         await productRepository.SaveChangesAsync(cancellationToken);
 
         // Re-fetch so the response includes the Category navigation (ToDto needs Category.Name).
-        var saved = await productRepository.GetByIdAsync(product.Id, cancellationToken);
-        return saved!.ToDto();
+        var saved = await productRepository.GetByIdAsync(product.Id, cancellationToken)
+            ?? throw new InvalidOperationException($"Product '{product.Id}' was saved but could not be re-fetched.");
+        var result = saved.ToDto();
+
+        await ProductCacheKeys.BumpVersionAsync(cache, cancellationToken);
+
+        // Search indexing is best-effort: SQL is the source of truth for the
+        // product itself, so a slow/unavailable Elasticsearch (or no
+        // OpenAI API key configured for embeddings) shouldn't fail product
+        // creation - it just means this product won't be findable via
+        // /api/products/search until indexing is retried.
+        try
+        {
+            await searchService.IndexAsync(saved.Id, saved.Name, saved.Description, result.CategoryName, saved.Price, saved.ImageUrl, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to index product {ProductId} into search.", saved.Id);
+        }
+
+        return result;
     }
 }
