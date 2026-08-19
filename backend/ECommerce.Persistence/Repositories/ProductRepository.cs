@@ -25,6 +25,18 @@ public class ProductRepository(ECommerceDbContext context) : IProductRepository
         return new ProductPage(items, totalCount);
     }
 
+    public Task<List<Product>> SearchAsync(string query, int top, CancellationToken cancellationToken = default)
+        => context.Products.Include(p => p.Category)
+            .Where(p => p.IsDeleted != true && p.IsActive == true
+                && (EF.Functions.Like(p.Name, $"%{query}%") || EF.Functions.Like(p.Description, $"%{query}%")))
+            // Name matches are usually more relevant than a description
+            // mention - simple heuristic since plain SQL LIKE has no
+            // real relevance scoring the way Elasticsearch does.
+            .OrderByDescending(p => EF.Functions.Like(p.Name, $"%{query}%"))
+            .ThenByDescending(p => p.CreatedAt)
+            .Take(top)
+            .ToListAsync(cancellationToken);
+
     public Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => context.Products.Include(p => p.Category)
             .FirstOrDefaultAsync(p => p.Id == id && p.IsDeleted != true, cancellationToken);

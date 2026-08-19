@@ -7,6 +7,10 @@ public record ProductPage(List<Product> Items, int TotalCount);
 public interface IProductRepository
 {
     Task<ProductPage> GetPagedAsync(int page, int pageSize, Guid? categoryId, CancellationToken cancellationToken = default);
+
+    // Plain SQL name/description search - the fallback SearchProductsQueryHandler
+    // uses when Elasticsearch hybrid search is unavailable (see IProductSearchService).
+    Task<List<Product>> SearchAsync(string query, int top, CancellationToken cancellationToken = default);
     Task<Product?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<bool> SkuExistsAsync(string sku, CancellationToken cancellationToken = default);
     Task<bool> SlugExistsAsync(string slug, CancellationToken cancellationToken = default);
