@@ -38,7 +38,7 @@ onMounted(async () => {
         <div
           v-for="item in order.items"
           :key="item.productId"
-          class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
+          class="flex items-center justify-between rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl"
         >
           <div>
             <p class="font-medium text-gray-900">{{ item.productName }}</p>
@@ -48,7 +48,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="mt-6 rounded-lg border border-gray-200 bg-white p-4">
+      <div class="mt-6 rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
         <div class="flex justify-between text-sm text-gray-600">
           <span>Shipping</span>
           <span>${{ order.shippingCost.toFixed(2) }}</span>

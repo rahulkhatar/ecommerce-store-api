@@ -13,4 +13,7 @@ export default {
   search(q, top = 20) {
     return api.get('/api/products/search', { params: { q, top } }).then((r) => r.data)
   },
+  createProduct(dto) {
+    return api.post('/api/products', dto).then((r) => r.data)
+  },
 }

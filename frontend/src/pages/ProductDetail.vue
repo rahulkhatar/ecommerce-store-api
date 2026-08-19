@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import productService from '@/services/productService'
 import { useCartStore } from '@/stores/cart'
+import { resolveImageUrl } from '@/utils/resolveImageUrl'
 
 const props = defineProps({ id: { type: String, required: true } })
 const cart = useCartStore()
@@ -44,12 +45,12 @@ watch(() => props.id, load)
     <p v-else-if="error" class="text-red-600">{{ error }}</p>
 
     <div v-else-if="product" class="grid gap-8 md:grid-cols-2">
-      <div class="flex h-80 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-        <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" class="h-full w-full object-cover rounded-lg" />
+      <div class="flex h-80 items-center justify-center rounded-2xl border border-white/50 bg-white/50 text-gray-400 shadow-sm backdrop-blur-xl">
+        <img v-if="product.imageUrl" :src="resolveImageUrl(product.imageUrl)" :alt="product.name" class="h-full w-full rounded-2xl object-cover" />
         <span v-else>No image</span>
       </div>
 
-      <div>
+      <div class="rounded-2xl border border-white/50 bg-white/50 p-6 shadow-sm backdrop-blur-xl">
         <p class="text-xs uppercase tracking-wide text-gray-400">{{ product.categoryName }}</p>
         <h1 class="mt-1 text-2xl font-semibold text-gray-900">{{ product.name }}</h1>
         <div class="mt-3 flex items-baseline gap-2">

@@ -105,7 +105,7 @@ async function handlePlaceOrder() {
   <div class="mx-auto max-w-2xl">
     <h1 class="mb-6 text-2xl font-semibold text-gray-900">Checkout</h1>
 
-    <section class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+    <section class="mb-6 rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
       <h2 class="mb-3 font-medium text-gray-900">Shipping address</h2>
 
       <div v-if="addresses.length > 0 && !showNewAddressForm" class="space-y-2">
@@ -142,7 +142,7 @@ async function handlePlaceOrder() {
       </div>
     </section>
 
-    <section class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+    <section class="mb-6 rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
       <h2 class="mb-3 font-medium text-gray-900">Payment method</h2>
       <div class="flex gap-4">
         <label class="flex items-center gap-2 text-sm">
@@ -154,7 +154,7 @@ async function handlePlaceOrder() {
       </div>
     </section>
 
-    <section class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+    <section class="mb-6 rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
       <div class="flex justify-between text-lg font-semibold text-gray-900">
         <span>Total</span>
         <span>${{ cart.totalAmount.toFixed(2) }}</span>
@@ -165,7 +165,7 @@ async function handlePlaceOrder() {
 
     <button
       :disabled="step === 'processing' || cart.items.length === 0"
-      class="w-full rounded bg-blue-600 py-3 text-white hover:bg-blue-700 disabled:opacity-50"
+      class="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 py-3 text-white shadow-lg shadow-blue-500/25 hover:opacity-95 disabled:opacity-50"
       @click="handlePlaceOrder"
     >
       {{ step === 'processing' ? 'Processing...' : 'Place order' }}

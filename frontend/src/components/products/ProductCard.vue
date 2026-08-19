@@ -1,18 +1,20 @@
 <script setup>
+import { resolveImageUrl } from '@/utils/resolveImageUrl'
+
 defineProps({ product: { type: Object, required: true } })
 </script>
 
 <template>
   <RouterLink
     :to="{ name: 'product-detail', params: { id: product.id } }"
-    class="group flex h-full flex-col rounded-lg border border-gray-200 bg-white p-4 transition-shadow hover:shadow-md hover:border-gray-300"
+    class="group flex h-full flex-col rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm shadow-black/5 backdrop-blur-xl transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-900/10"
   >
-    <div class="relative mb-3 flex aspect-square items-center justify-center rounded bg-gray-50 text-gray-400">
+    <div class="relative mb-3 flex aspect-square items-center justify-center rounded-xl bg-white/40 text-gray-400">
       <img
         v-if="product.imageUrl"
-        :src="product.imageUrl"
+        :src="resolveImageUrl(product.imageUrl)"
         :alt="product.name"
-        class="h-full w-full rounded object-cover"
+        class="h-full w-full rounded-xl object-cover"
       />
       <span v-else class="text-sm">No image</span>
 

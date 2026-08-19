@@ -11,6 +11,7 @@ const routes = [
   { path: '/checkout/paypal-return', name: 'paypal-return', component: () => import('@/pages/PayPalReturn.vue'), meta: { requiresAuth: true } },
   { path: '/orders', name: 'orders', component: () => import('@/pages/Orders.vue'), meta: { requiresAuth: true } },
   { path: '/orders/:id', name: 'order-detail', component: () => import('@/pages/OrderDetail.vue'), props: true, meta: { requiresAuth: true } },
+  { path: '/admin/products/new', name: 'admin-product-new', component: () => import('@/pages/AdminProductNew.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/pages/NotFound.vue') },
 ]
 
@@ -23,6 +24,9 @@ router.beforeEach((to) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
+  }
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { name: 'home' }
   }
 })
 

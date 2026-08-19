@@ -83,13 +83,13 @@ watch(searchQuery, async (q) => {
 
 <template>
   <div class="grid grid-cols-[220px_1fr] gap-6">
-    <aside class="h-fit rounded-lg border border-gray-200 bg-white p-4">
+    <aside class="h-fit rounded-2xl border border-white/50 bg-white/50 p-4 shadow-sm shadow-black/5 backdrop-blur-xl">
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Category</h2>
       <ul class="space-y-1 text-sm">
         <li>
           <button
-            class="w-full rounded px-2 py-1.5 text-left"
-            :class="selectedCategory === null ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-700 hover:bg-gray-50'"
+            class="w-full rounded-xl px-2 py-1.5 text-left transition"
+            :class="selectedCategory === null ? 'bg-blue-500/15 font-medium text-blue-700' : 'text-gray-700 hover:bg-white/60'"
             @click="filterByCategory(null)"
           >
             All Products
@@ -97,8 +97,8 @@ watch(searchQuery, async (q) => {
         </li>
         <li v-for="c in store.categories" :key="c.id">
           <button
-            class="w-full rounded px-2 py-1.5 text-left"
-            :class="selectedCategory === c.id ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-700 hover:bg-gray-50'"
+            class="w-full rounded-xl px-2 py-1.5 text-left transition"
+            :class="selectedCategory === c.id ? 'bg-blue-500/15 font-medium text-blue-700' : 'text-gray-700 hover:bg-white/60'"
             @click="filterByCategory(c.id)"
           >
             {{ c.name }}

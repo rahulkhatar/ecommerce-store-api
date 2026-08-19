@@ -28,7 +28,7 @@ onMounted(async () => {
         v-for="o in orders"
         :key="o.id"
         :to="{ name: 'order-detail', params: { id: o.id } }"
-        class="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+        class="flex items-center justify-between rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-900/10"
       >
         <div>
           <p class="font-medium text-gray-900">{{ o.orderNumber }}</p>

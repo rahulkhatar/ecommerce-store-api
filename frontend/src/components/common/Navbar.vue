@@ -32,7 +32,7 @@ function handleLogout() {
 </script>
 
 <template>
-  <header class="bg-slate-900 text-white">
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-slate-900/70 text-white shadow-lg shadow-black/10 backdrop-blur-xl">
     <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
       <RouterLink :to="{ name: 'home' }" class="shrink-0 text-xl font-bold tracking-tight text-white">
         ECommerce<span class="text-blue-400">Store</span>
@@ -43,12 +43,12 @@ function handleLogout() {
           v-model="searchTerm"
           type="search"
           placeholder="Search products..."
-          class="min-w-0 flex-1 rounded-l-md border-0 px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="min-w-0 flex-1 rounded-l-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white placeholder-gray-300 backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           type="submit"
           aria-label="Search"
-          class="flex items-center justify-center rounded-r-md bg-blue-500 px-4 text-white hover:bg-blue-400"
+          class="flex items-center justify-center rounded-r-full border border-l-0 border-white/10 bg-blue-500/90 px-4 text-white backdrop-blur-md hover:bg-blue-400"
         >
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 1 1 4 10.5a6.5 6.5 0 0 1 13 0Z" />
@@ -59,6 +59,10 @@ function handleLogout() {
       <nav class="flex shrink-0 items-center gap-5 text-sm">
         <RouterLink v-if="auth.isAuthenticated" to="/orders" class="text-gray-200 hover:text-white">
           Orders
+        </RouterLink>
+
+        <RouterLink v-if="auth.isAdmin" to="/admin/products/new" class="text-gray-200 hover:text-white">
+          Add Product
         </RouterLink>
 
         <RouterLink to="/cart" class="relative text-gray-200 hover:text-white">
@@ -79,7 +83,7 @@ function handleLogout() {
         </template>
         <template v-else>
           <RouterLink to="/login" class="text-gray-200 hover:text-white">Login</RouterLink>
-          <RouterLink to="/register" class="rounded bg-blue-500 px-3 py-1.5 font-medium text-white hover:bg-blue-400">
+          <RouterLink to="/register" class="rounded-full bg-blue-500/90 px-3 py-1.5 font-medium text-white backdrop-blur-md hover:bg-blue-400">
             Sign up
           </RouterLink>
         </template>
