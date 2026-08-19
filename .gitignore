@@ -56,7 +56,7 @@ Thumbs.db
 .DS_Store
 
 # Docker
-.dockerignore
+# (.dockerignore itself should be committed, like .gitignore - not excluded)
 docker-compose.override.yml
 
 # Database

@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # ============================================
   # MSSQL Server Database
@@ -57,16 +55,25 @@ services:
     container_name: ecommerce-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      # HTTP only in this dev compose file - no cert is configured for Kestrel,
+      # so setting ASPNETCORE_HTTPS_PORTS here would make UseHttpsRedirection()
+      # redirect to a port nothing is actually listening on. TLS is nginx's job
+      # (see docker/nginx.conf's commented HTTPS server block) or, in
+      # production, terminated at the load balancer/reverse proxy.
       ASPNETCORE_HTTP_PORTS: 5000
-      ASPNETCORE_HTTPS_PORTS: 5001
-      ConnectionStrings__DefaultConnection: "Server=mssql;Database=ECommerceDB;User Id=sa;Password=Reset@789;"
+      # Encrypt=false;TrustServerCertificate=true - mssql's cert is a
+      # self-signed one generated at container startup; without this,
+      # Microsoft.Data.SqlClient's default strict TLS validation rejects it
+      # (chain untrusted + hostname mismatch against "mssql"), and every DB
+      # call 500s.
+      ConnectionStrings__DefaultConnection: "Server=mssql;Database=ECommerceDB;User Id=sa;Password=Reset@789;Encrypt=false;TrustServerCertificate=true;"
       JWT__Secret: "your-super-secret-jwt-key-change-in-production-at-least-32-characters"
       JWT__Issuer: "http://localhost:5000"
       JWT__Audience: "ecommerce-app"
       JWT__ExpiryMinutes: 60
       OpenAI__ApiKey: ${OPENAI_API_KEY:-your-openai-api-key}
       OpenAI__Model: "gpt-4"
-      CorsOrigins: "http://localhost:5173,http://localhost:3000"
+      CorsOrigins: "http://localhost:5173,http://localhost:3000,http://localhost:8081"
       App__FrontendBaseUrl: "http://localhost:5173"
       Razorpay__KeyId: ${RAZORPAY_KEY_ID:-your_razorpay_key_id}
       Razorpay__KeySecret: ${RAZORPAY_KEY_SECRET:-your_razorpay_key_secret}
@@ -75,12 +82,25 @@ services:
       PayPal__ClientSecret: ${PAYPAL_CLIENT_SECRET:-your_paypal_client_secret}
     ports:
       - "5000:5000"
-      - "5001:5001"
     depends_on:
       mssql:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      # Anonymous volumes so each project's build output stays inside the
+      # container instead of sharing bin/obj with host-side builds (Windows
+      # paths in a bind-mounted obj/ confuse dotnet watch in the Linux
+      # container - same reasoning as frontend's node_modules volume).
+      - /app/ECommerce.API/bin
+      - /app/ECommerce.API/obj
+      - /app/ECommerce.Application/bin
+      - /app/ECommerce.Application/obj
+      - /app/ECommerce.Domain/bin
+      - /app/ECommerce.Domain/obj
+      - /app/ECommerce.Infrastructure/bin
+      - /app/ECommerce.Infrastructure/obj
+      - /app/ECommerce.Persistence/bin
+      - /app/ECommerce.Persistence/obj
     networks:
       - ecommerce-network
 
@@ -112,8 +132,11 @@ services:
     image: nginx:alpine
     container_name: ecommerce-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      # Host 8081 (not 80) - port 80 is commonly already taken by something
+      # else on a dev machine (it was on the one this was built on). 443 isn't
+      # mapped since nginx.conf's HTTPS server block is commented out until
+      # there's a real certificate (see docker-compose.prod.yml for that).
+      - "8081:80"
     volumes:
       - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
       # Mount SSL certificates (create them first)
