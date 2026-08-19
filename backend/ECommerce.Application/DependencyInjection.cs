@@ -1,5 +1,6 @@
 using System.Reflection;
 using ECommerce.Application.Behaviors;
+using ECommerce.Application.Features.Payments;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ public static class DependencyInjection
         });
         services.AddAutoMapper(cfg => { }, assembly);
         services.AddValidatorsFromAssembly(assembly);
+        services.AddScoped<PaymentGatewayResolver>();
 
         return services;
     }
