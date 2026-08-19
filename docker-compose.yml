@@ -67,6 +67,7 @@ services:
       OpenAI__ApiKey: ${OPENAI_API_KEY:-your-openai-api-key}
       OpenAI__Model: "gpt-4"
       CorsOrigins: "http://localhost:5173,http://localhost:3000"
+      App__FrontendBaseUrl: "http://localhost:5173"
       Razorpay__KeyId: ${RAZORPAY_KEY_ID:-your_razorpay_key_id}
       Razorpay__KeySecret: ${RAZORPAY_KEY_SECRET:-your_razorpay_key_secret}
       PayPal__BaseUrl: ${PAYPAL_BASE_URL:-https://api-m.sandbox.paypal.com}

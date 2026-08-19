@@ -19,10 +19,17 @@ public class PayPalGateway(HttpClient httpClient, IConfiguration configuration, 
         EnsureBaseAddress();
         await AuthenticateAsync(cancellationToken);
 
+        // The customer is redirected to PayPal to approve, then PayPal
+        // redirects back here with ?token={paypal_order_id}&orderId={ours} -
+        // the frontend's PayPalReturn page reads both and calls /confirm.
+        var frontendBaseUrl = (configuration["App:FrontendBaseUrl"] ?? "http://localhost:5173").TrimEnd('/');
         var payload = new PayPalCreateOrderRequest("CAPTURE",
         [
             new PayPalPurchaseUnit(internalOrderId.ToString(), new PayPalAmount(currencyCode, amount.ToString("F2"))),
-        ]);
+        ],
+        new PayPalApplicationContext(
+            $"{frontendBaseUrl}/checkout/paypal-return?orderId={internalOrderId}",
+            $"{frontendBaseUrl}/checkout"));
 
         var response = await httpClient.PostAsJsonAsync("v2/checkout/orders", payload, cancellationToken);
         if (!response.IsSuccessStatusCode)
@@ -105,7 +112,12 @@ public class PayPalGateway(HttpClient httpClient, IConfiguration configuration, 
 
     private record PayPalCreateOrderRequest(
         [property: JsonPropertyName("intent")] string Intent,
-        [property: JsonPropertyName("purchase_units")] List<PayPalPurchaseUnit> PurchaseUnits);
+        [property: JsonPropertyName("purchase_units")] List<PayPalPurchaseUnit> PurchaseUnits,
+        [property: JsonPropertyName("application_context")] PayPalApplicationContext ApplicationContext);
+
+    private record PayPalApplicationContext(
+        [property: JsonPropertyName("return_url")] string ReturnUrl,
+        [property: JsonPropertyName("cancel_url")] string CancelUrl);
 
     private record PayPalPurchaseUnit(
         [property: JsonPropertyName("reference_id")] string ReferenceId,
