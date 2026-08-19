@@ -10,4 +10,7 @@ export default {
   getCategories() {
     return api.get('/api/categories').then((r) => r.data)
   },
+  search(q, top = 20) {
+    return api.get('/api/products/search', { params: { q, top } }).then((r) => r.data)
+  },
 }
