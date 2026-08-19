@@ -5,14 +5,22 @@
     <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj" />
   </ItemGroup>
 
+  <!-- For IWebHostEnvironment (LocalFileStorageService needs WebRootPath) -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- Microsoft.Extensions.{Configuration,DependencyInjection}.Abstractions
+       and Microsoft.Extensions.Http are deliberately not listed as direct
+       PackageReferences - the Microsoft.AspNetCore.App FrameworkReference
+       above already provides them, and NuGet 10's pruning warns (NU1510) if
+       they're also referenced directly. -->
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Elastic.SemanticKernel.Connectors.Elasticsearch" Version="0.3.1" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.9.0" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.9.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
   </ItemGroup>
 

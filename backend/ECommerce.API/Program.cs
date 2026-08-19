@@ -96,6 +96,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Serves wwwroot/uploads/products/* back out at /uploads/products/* - see
+// LocalFileStorageService, which is what writes into that folder.
+app.UseStaticFiles();
+
 app.UseCors("Default");
 
 app.UseAuthentication();

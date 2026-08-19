@@ -1,8 +1,10 @@
 using ECommerce.Domain.Interfaces;
+using ECommerce.Infrastructure.AI;
 using ECommerce.Infrastructure.Authentication;
 using ECommerce.Infrastructure.Caching;
 using ECommerce.Infrastructure.Payments;
 using ECommerce.Infrastructure.Search;
+using ECommerce.Infrastructure.Storage;
 using Elastic.Clients.Elasticsearch;
 using Elastic.SemanticKernel.Connectors.Elasticsearch;
 using Microsoft.Extensions.AI;
@@ -70,6 +72,13 @@ public static class DependencyInjection
             }));
 
         services.AddSingleton<IProductSearchService, ElasticsearchProductSearchService>();
+
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
+        // Scoped (not singleton): it depends on ISender/IChatHistoryRepository,
+        // which are themselves scoped - a singleton here would capture a
+        // request-scoped dependency past its lifetime.
+        services.AddScoped<IShoppingAssistantService, OpenAiShoppingAssistantService>();
 
         return services;
     }
