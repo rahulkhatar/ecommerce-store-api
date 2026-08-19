@@ -9,7 +9,7 @@ const hasError = ref(false)
 </script>
 
 <template>
-  <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }" class="crystal-product-card group flex h-full flex-col p-4">
+  <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }" class="crystal-product-card group relative flex h-full flex-col overflow-hidden p-4">
     <div class="relative mb-3 aspect-square overflow-hidden rounded-xl bg-white/40">
       <div
         v-if="product.imageUrl && !hasError"
@@ -65,22 +65,61 @@ const hasError = ref(false)
 .crystal-product-card {
   position: relative;
   display: flex;
-  border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 60%, rgba(255, 255, 255, 0.45) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 1.1rem;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.72) 45%, rgba(255, 255, 255, 0.85) 100%);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow:
-    0 4px 20px rgba(30, 41, 59, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  transition: all 0.3s ease;
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 -12px 20px -14px rgba(148, 163, 184, 0.5) inset,
+    0 10px 24px -8px rgba(30, 41, 59, 0.16),
+    0 2px 6px rgba(30, 41, 59, 0.06);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
 }
+
+/* Diagonal specular highlight band - the "glossy" streak across the top of the card */
+.crystal-product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(255, 255, 255, 0.35) 12%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0) 78%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+
+/* Soft color-tinted rim light so the glass reads against any background */
+.crystal-product-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(148, 197, 255, 0.25) inset;
+  z-index: 1;
+}
+
 .crystal-product-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(96, 165, 250, 0.45);
+  transform: translateY(-6px) scale(1.015);
+  border-color: rgba(147, 197, 253, 0.7);
   box-shadow:
-    0 14px 32px rgba(30, 64, 175, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 0 24px rgba(96, 165, 250, 0.15);
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 -12px 20px -14px rgba(148, 163, 184, 0.5) inset,
+    0 22px 40px -12px rgba(30, 64, 175, 0.22),
+    0 0 28px rgba(96, 165, 250, 0.22);
+}
+
+.crystal-product-card > * {
+  position: relative;
+  z-index: 2;
 }
 </style>
