@@ -11,11 +11,13 @@ export const useProductsStore = defineStore('products', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  async function fetchProducts({ page: p = 1, categoryId = null } = {}) {
+  const brands = ref([])
+
+  async function fetchProducts({ page: p = 1, categoryId = null, minPrice = null, maxPrice = null, vendor = null } = {}) {
     loading.value = true
     error.value = null
     try {
-      const result = await productService.getProducts({ page: p, pageSize: pageSize.value, categoryId })
+      const result = await productService.getProducts({ page: p, pageSize: pageSize.value, categoryId, minPrice, maxPrice, vendor })
       items.value = result.items
       page.value = result.page
       totalCount.value = result.totalCount
@@ -34,5 +36,13 @@ export const useProductsStore = defineStore('products', () => {
     }
   }
 
-  return { items, categories, page, pageSize, totalCount, loading, error, fetchProducts, fetchCategories }
+  async function fetchBrands(categoryId = null) {
+    try {
+      brands.value = await productService.getBrands(categoryId)
+    } catch {
+      brands.value = []
+    }
+  }
+
+  return { items, categories, brands, page, pageSize, totalCount, loading, error, fetchProducts, fetchCategories, fetchBrands }
 })

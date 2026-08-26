@@ -12,6 +12,8 @@ const routes = [
   { path: '/orders', name: 'orders', component: () => import('@/pages/Orders.vue'), meta: { requiresAuth: true } },
   { path: '/orders/:id', name: 'order-detail', component: () => import('@/pages/OrderDetail.vue'), props: true, meta: { requiresAuth: true } },
   { path: '/admin/products/new', name: 'admin-product-new', component: () => import('@/pages/AdminProductNew.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/orders', name: 'admin-orders', component: () => import('@/pages/AdminOrders.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+  { path: '/admin/orders/:id', name: 'admin-order-detail', component: () => import('@/pages/AdminOrderDetail.vue'), props: true, meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/pages/NotFound.vue') },
 ]
 

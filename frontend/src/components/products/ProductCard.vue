@@ -1,125 +1,99 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { resolveImageUrl } from '@/utils/resolveImageUrl'
 
-defineProps({ product: { type: Object, required: true } })
+const props = defineProps({
+  product: { type: Object, required: true },
+  // Home page department previews show one product per type as a stand-in
+  // for that whole type - clicking it should browse the type's variety
+  // (other brands/variants), not jump straight to this one item's page.
+  linkToCategory: { type: Boolean, default: false },
+})
 
 const isLoaded = ref(false)
 const hasError = ref(false)
+
+const discountPct = computed(() => {
+  const { price, discountPrice } = props.product
+  if (!discountPrice) return null
+  return Math.round((1 - discountPrice / price) * 100)
+})
+
+const hasRating = computed(() => Number(props.product.reviewCount) > 0)
+
+const linkTarget = computed(() =>
+  props.linkToCategory && props.product.categoryId
+    ? { name: 'home', query: { category: props.product.categoryId } }
+    : { name: 'product-detail', params: { id: props.product.id } },
+)
 </script>
 
 <template>
-  <RouterLink :to="{ name: 'product-detail', params: { id: product.id } }" class="crystal-product-card group relative flex h-full flex-col overflow-hidden p-4">
-    <div class="relative mb-3 aspect-square overflow-hidden rounded-xl bg-white/40">
+  <RouterLink
+    :to="linkTarget"
+    class="group flex h-full flex-col rounded border border-gray-200 bg-white p-3 transition hover:shadow-lg hover:border-gray-300"
+  >
+    <div class="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded bg-white">
       <div
-        v-if="product.imageUrl && !hasError"
-        class="h-full w-full"
+        v-if="!isLoaded && !hasError && product.imageUrl"
+        class="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-300"
       >
-        <div
-          v-if="!isLoaded"
-          class="absolute inset-0 flex items-center justify-center bg-gray-100/60 text-gray-300"
-        >
-          <svg class="h-8 w-8 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0 0 22.5 18.75V5.25A1.5 1.5 0 0 0 21 3.75H3A1.5 1.5 0 0 0 1.5 5.25v13.5A1.5 1.5 0 0 0 3 20.25Z" />
-          </svg>
-        </div>
-        <img
-          :src="resolveImageUrl(product.imageUrl)"
-          :alt="product.name"
-          class="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
-          :class="isLoaded ? 'opacity-100' : 'opacity-0'"
-          loading="lazy"
-          @load="isLoaded = true"
-          @error="hasError = true"
-        />
-        <div
-          class="pointer-events-none absolute inset-0"
-          style="background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 45%, rgba(255,255,255,0.06) 100%);"
-        ></div>
+        <svg class="h-8 w-8 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0 0 22.5 18.75V5.25A1.5 1.5 0 0 0 21 3.75H3A1.5 1.5 0 0 0 1.5 5.25v13.5A1.5 1.5 0 0 0 3 20.25Z" />
+        </svg>
       </div>
-      <div v-else class="flex h-full w-full items-center justify-center text-sm text-gray-400">No image</div>
+      <img
+        v-if="product.imageUrl && !hasError"
+        :src="resolveImageUrl(product.imageUrl)"
+        :alt="product.name"
+        class="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+        :class="isLoaded ? 'opacity-100' : 'opacity-0'"
+        loading="lazy"
+        @load="isLoaded = true"
+        @error="hasError = true"
+      />
+      <div v-else class="flex flex-col items-center gap-1 text-gray-300">
+        <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0 0 22.5 18.75V5.25A1.5 1.5 0 0 0 21 3.75H3A1.5 1.5 0 0 0 1.5 5.25v13.5A1.5 1.5 0 0 0 3 20.25Z" />
+        </svg>
+        <span class="text-xs">No image</span>
+      </div>
 
       <span
-        v-if="product.discountPrice"
-        class="absolute left-2 top-2 rounded-full bg-red-500/90 px-2 py-0.5 text-xs font-semibold text-white shadow-sm backdrop-blur-sm"
+        v-if="discountPct"
+        class="absolute right-1.5 top-1.5 rounded bg-orange-500 px-1.5 py-0.5 text-[10px] font-bold text-white"
       >
-        -{{ Math.round((1 - product.discountPrice / product.price) * 100) }}%
+        {{ discountPct }}% OFF
       </span>
     </div>
 
-    <p class="text-xs uppercase tracking-wide text-gray-400">{{ product.categoryName }}</p>
-    <h3 class="mt-1 line-clamp-2 flex-1 text-sm font-medium text-gray-900 group-hover:text-blue-700">
-      {{ product.name }}
-    </h3>
+    <p v-if="product.vendor" class="text-xs text-gray-500">by {{ product.vendor }}</p>
+    <h3 class="line-clamp-2 text-sm text-gray-800 group-hover:text-[#C7511F]">{{ product.name }}</h3>
 
-    <div class="mt-2 flex items-baseline gap-2">
-      <span class="text-lg font-semibold text-gray-900">${{ (product.discountPrice ?? product.price).toFixed(2) }}</span>
-      <span v-if="product.discountPrice" class="text-sm text-gray-400 line-through">${{ product.price.toFixed(2) }}</span>
+    <div v-if="hasRating" class="mt-1 flex items-center gap-1.5">
+      <div class="flex text-[#FFA41C]">
+        <svg
+          v-for="i in 5"
+          :key="i"
+          class="h-3.5 w-3.5"
+          :fill="i <= Math.round(product.rating) ? 'currentColor' : 'none'"
+          viewBox="0 0 20 20"
+          stroke="currentColor"
+          stroke-width="1"
+        >
+          <path d="M10 15.27 16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z" />
+        </svg>
+      </div>
+      <span class="text-xs text-[#007185]">{{ product.reviewCount }}</span>
     </div>
 
-    <p v-if="product.stockQuantity === 0" class="mt-1 text-xs font-medium text-red-600">Out of stock</p>
+    <div class="mt-auto pt-2">
+      <div class="flex flex-wrap items-baseline gap-1.5">
+        <span v-if="discountPct" class="text-sm font-medium text-[#CC0C39]">-{{ discountPct }}%</span>
+        <span class="text-base font-bold text-gray-900">${{ (product.discountPrice ?? product.price).toFixed(2) }}</span>
+        <span v-if="discountPct" class="text-xs text-gray-400 line-through">${{ product.price.toFixed(2) }}</span>
+      </div>
+      <p v-if="product.stockQuantity === 0" class="mt-1 text-xs font-medium text-red-600">Out of stock</p>
+    </div>
   </RouterLink>
 </template>
-
-<style scoped>
-.crystal-product-card {
-  position: relative;
-  display: flex;
-  border-radius: 1.1rem;
-  background:
-    linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.72) 45%, rgba(255, 255, 255, 0.85) 100%);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.9) inset,
-    0 -12px 20px -14px rgba(148, 163, 184, 0.5) inset,
-    0 10px 24px -8px rgba(30, 41, 59, 0.16),
-    0 2px 6px rgba(30, 41, 59, 0.06);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
-}
-
-/* Diagonal specular highlight band - the "glossy" streak across the top of the card */
-.crystal-product-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    115deg,
-    rgba(255, 255, 255, 0.75) 0%,
-    rgba(255, 255, 255, 0.35) 12%,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0) 78%,
-    rgba(255, 255, 255, 0.3) 100%
-  );
-  mix-blend-mode: overlay;
-  z-index: 1;
-}
-
-/* Soft color-tinted rim light so the glass reads against any background */
-.crystal-product-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow: 0 0 0 1px rgba(148, 197, 255, 0.25) inset;
-  z-index: 1;
-}
-
-.crystal-product-card:hover {
-  transform: translateY(-6px) scale(1.015);
-  border-color: rgba(147, 197, 253, 0.7);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.95) inset,
-    0 -12px 20px -14px rgba(148, 163, 184, 0.5) inset,
-    0 22px 40px -12px rgba(30, 64, 175, 0.22),
-    0 0 28px rgba(96, 165, 250, 0.22);
-}
-
-.crystal-product-card > * {
-  position: relative;
-  z-index: 2;
-}
-</style>

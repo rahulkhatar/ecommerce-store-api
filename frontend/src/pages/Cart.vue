@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import { resolveImageUrl } from '@/utils/resolveImageUrl'
+import CompassLoader from '@/components/common/CompassLoader.vue'
 
 const cart = useCartStore()
 onMounted(() => cart.fetchCart())
@@ -11,9 +12,9 @@ onMounted(() => cart.fetchCart())
   <div>
     <h1 class="mb-6 text-2xl font-semibold text-gray-900">Your Cart</h1>
 
-    <p v-if="cart.loading" class="text-gray-500">Loading...</p>
+    <CompassLoader v-if="cart.loading" />
     <p v-else-if="cart.items.length === 0" class="text-gray-500">
-      Your cart is empty. <RouterLink to="/" class="text-blue-600 hover:underline">Browse products</RouterLink>
+      Your cart is empty. <RouterLink to="/" class="text-[#007185] hover:text-[#C7511F] hover:underline">Browse products</RouterLink>
     </p>
 
     <div v-else class="grid gap-8 md:grid-cols-3">
@@ -21,9 +22,9 @@ onMounted(() => cart.fetchCart())
         <div
           v-for="item in cart.items"
           :key="item.productId"
-          class="flex items-center gap-4 rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl"
+          class="flex items-center gap-4 rounded border border-gray-200 bg-white p-4 shadow-sm"
         >
-          <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-white/40 text-xs text-gray-400">
+          <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded bg-gray-50 text-xs text-gray-400">
             <img v-if="item.imageUrl" :src="resolveImageUrl(item.imageUrl)" :alt="item.productName" class="h-full w-full rounded-xl object-cover" />
             <span v-else>No image</span>
           </div>
@@ -44,16 +45,16 @@ onMounted(() => cart.fetchCart())
         <p v-if="cart.error" class="text-sm text-red-600">{{ cart.error }}</p>
       </div>
 
-      <div class="h-fit rounded-2xl border border-white/50 bg-white/60 p-4 shadow-sm backdrop-blur-xl">
+      <div class="h-fit rounded border border-gray-200 bg-white p-4 shadow-sm">
         <div class="flex justify-between text-lg font-semibold text-gray-900">
           <span>Total</span>
           <span>${{ cart.totalAmount.toFixed(2) }}</span>
         </div>
         <RouterLink
           to="/checkout"
-          class="mt-4 block rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 py-2 text-center text-white shadow-lg shadow-blue-500/25 hover:opacity-95"
+          class="mt-4 block rounded-full bg-[#FF9900] py-2 text-center font-medium text-gray-900 shadow-sm hover:bg-[#e88a00]"
         >
-          Checkout
+          Proceed to checkout
         </RouterLink>
       </div>
     </div>

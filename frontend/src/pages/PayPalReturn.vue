@@ -35,7 +35,7 @@ onMounted(async () => {
     <p v-if="status === 'confirming'" class="text-gray-600">Confirming your PayPal payment...</p>
     <div v-else>
       <p class="text-red-600">{{ errorMessage }}</p>
-      <RouterLink to="/checkout" class="mt-4 inline-block text-blue-600 hover:underline">Back to checkout</RouterLink>
+      <RouterLink to="/checkout" class="mt-4 inline-block text-[#007185] hover:text-[#C7511F] hover:underline">Back to checkout</RouterLink>
     </div>
   </div>
 </template>

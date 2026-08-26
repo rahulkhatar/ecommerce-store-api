@@ -21,32 +21,35 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-sm rounded-3xl border border-white/50 bg-white/60 p-8 shadow-xl shadow-blue-900/5 backdrop-blur-2xl">
+  <div class="mx-auto max-w-sm rounded border border-gray-300 bg-white p-8 shadow-sm">
     <h1 class="mb-6 text-2xl font-semibold text-gray-900">Log in</h1>
 
     <form class="space-y-4" @submit.prevent="handleSubmit">
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Email</label>
-        <input v-model="email" type="email" required class="w-full rounded-xl border border-white/60 bg-white/70 px-3 py-2 shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        <input v-model="email" type="email" required class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
       </div>
       <div>
         <label class="mb-1 block text-sm font-medium text-gray-700">Password</label>
-        <input v-model="password" type="password" required class="w-full rounded-xl border border-white/60 bg-white/70 px-3 py-2 shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        <input v-model="password" type="password" required class="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
       </div>
 
+      <p v-if="!auth.error && route.query.expired" class="text-sm text-amber-600">
+        Your session expired. Please log in again.
+      </p>
       <p v-if="auth.error" class="text-sm text-red-600">{{ auth.error }}</p>
 
       <button
         type="submit"
         :disabled="auth.loading"
-        class="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 py-2 text-white shadow-lg shadow-blue-500/25 hover:opacity-95 disabled:opacity-50"
+        class="w-full rounded-full bg-[#FF9900] py-2 font-medium text-gray-900 shadow-sm hover:bg-[#e88a00] disabled:opacity-50"
       >
         {{ auth.loading ? 'Logging in...' : 'Log in' }}
       </button>
     </form>
 
     <p class="mt-4 text-sm text-gray-600">
-      No account? <RouterLink to="/register" class="text-blue-600 hover:underline">Sign up</RouterLink>
+      No account? <RouterLink to="/register" class="text-[#007185] hover:text-[#C7511F] hover:underline">Sign up</RouterLink>
     </p>
   </div>
 </template>

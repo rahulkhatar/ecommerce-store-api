@@ -8,7 +8,10 @@ export const useCartStore = defineStore('cart', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const itemCount = computed(() => items.value.reduce((sum, i) => sum + i.quantity, 0))
+  // Number of distinct products in the cart, not the sum of their
+  // quantities - the navbar badge means "how many different things", so one
+  // product with quantity 8 should show 1, not 8.
+  const itemCount = computed(() => items.value.length)
 
   function apply(cartDto) {
     items.value = cartDto.items
@@ -57,5 +60,15 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  return { items, totalAmount, loading, error, itemCount, fetchCart, addItem, updateItem, removeItem }
+  // The cart is per-customer server-side ([Authorize] on every /api/cart
+  // endpoint) - once the user logs out there's no cart to show, so drop
+  // whatever's in memory rather than leaving the previous session's items
+  // (and a working Checkout link) visible.
+  function reset() {
+    items.value = []
+    totalAmount.value = 0
+    error.value = null
+  }
+
+  return { items, totalAmount, loading, error, itemCount, fetchCart, addItem, updateItem, removeItem, reset }
 })
