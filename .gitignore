@@ -71,9 +71,12 @@ database/data/
 docker/ssl/*
 !docker/ssl/.gitkeep
 
-# Uploads
-uploads/
-public/uploads/
+# Uploads - runtime-written product images only (LocalFileStorageService).
+# Anchored to the exact wwwroot path, not a bare "uploads/" - that pattern
+# also matched (case-insensitively) the *source* folder
+# ECommerce.Application/Features/Uploads/, silently keeping
+# UploadProductImageCommand.cs out of git entirely.
+backend/ECommerce.API/wwwroot/uploads/
 
 # Test coverage
 coverage/
