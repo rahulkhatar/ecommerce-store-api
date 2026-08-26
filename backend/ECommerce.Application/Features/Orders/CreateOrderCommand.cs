@@ -59,6 +59,11 @@ public class CreateOrderCommandHandler(IOrderRepository orderRepository, IAddres
             var product = await orderRepository.GetProductAsync(line.ProductId, cancellationToken)
                 ?? throw new NotFoundException($"Product '{line.ProductId}' not found.");
 
+            // Checked here so the customer gets immediate feedback, but not
+            // deducted here - an order that's never paid for (declined,
+            // abandoned, or the gateway just errors out) shouldn't
+            // permanently eat real inventory. The actual deduction happens
+            // in ConfirmPaymentCommandHandler, only once payment succeeds.
             if (line.Quantity > product.StockQuantity)
             {
                 throw new BusinessException($"Only {product.StockQuantity} of '{product.Name}' in stock.");
@@ -67,9 +72,6 @@ public class CreateOrderCommandHandler(IOrderRepository orderRepository, IAddres
             var unitPrice = product.DiscountPrice ?? product.Price;
             var lineTotal = unitPrice * line.Quantity;
             total += lineTotal;
-
-            product.StockQuantity -= line.Quantity;
-            product.SalesCount = (product.SalesCount ?? 0) + line.Quantity;
 
             order.OrderItems.Add(new OrderItem
             {

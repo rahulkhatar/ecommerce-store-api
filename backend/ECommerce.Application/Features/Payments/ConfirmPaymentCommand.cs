@@ -12,7 +12,8 @@ public class ConfirmPaymentCommandValidator : AbstractValidator<ConfirmPaymentCo
     public ConfirmPaymentCommandValidator() => RuleFor(x => x.Dto).SetValidator(new ConfirmPaymentDtoValidator());
 }
 
-public class ConfirmPaymentCommandHandler(IPaymentRepository paymentRepository, PaymentGatewayResolver gatewayResolver)
+public class ConfirmPaymentCommandHandler(
+    IPaymentRepository paymentRepository, PaymentGatewayResolver gatewayResolver, IShoppingCartRepository cartRepository)
     : IRequestHandler<ConfirmPaymentCommand, PaymentResultDto>
 {
     public async Task<PaymentResultDto> Handle(ConfirmPaymentCommand request, CancellationToken cancellationToken)
@@ -48,6 +49,29 @@ public class ConfirmPaymentCommandHandler(IPaymentRepository paymentRepository, 
             payment.TransactionId = result.ProviderTransactionId ?? payment.TransactionId;
             order.OrderStatus = "Confirmed";
             order.UpdatedAt = DateTime.UtcNow;
+
+            // Only now - payment actually succeeded, not just "an order was
+            // created" - is it safe to say these items are done with the cart,
+            // and safe to actually take the stock. If payment fails or is
+            // abandoned, both the cart and the inventory must be left alone
+            // so the customer can simply retry checkout (see
+            // CreateOrderCommandHandler, which validates stock but no longer
+            // deducts it).
+            foreach (var item in order.OrderItems)
+            {
+                var cartItem = await cartRepository.GetItemAsync(request.CustomerId, item.ProductId, cancellationToken);
+                if (cartItem is not null)
+                {
+                    cartRepository.Remove(cartItem);
+                }
+
+                var product = await paymentRepository.GetProductAsync(item.ProductId, cancellationToken);
+                if (product is not null)
+                {
+                    product.StockQuantity -= item.Quantity;
+                    product.SalesCount = (product.SalesCount ?? 0) + item.Quantity;
+                }
+            }
         }
         else
         {
