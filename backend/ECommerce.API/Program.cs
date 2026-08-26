@@ -36,7 +36,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services
     .AddApplicationServices()
-    .AddInfrastructureServices(builder.Configuration)
+    .AddInfrastructureServices(builder.Configuration, builder.Environment.IsDevelopment())
     .AddPersistenceServices(builder.Configuration);
 
 var jwtSecret = builder.Configuration["JWT:Secret"]

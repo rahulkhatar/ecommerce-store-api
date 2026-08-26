@@ -10,4 +10,10 @@ export default {
   createOrder(dto) {
     return api.post('/api/orders', dto).then((r) => r.data)
   },
+  getAllOrdersAdmin({ page = 1, pageSize = 20 } = {}) {
+    return api.get('/api/orders/admin', { params: { page, pageSize } }).then((r) => r.data)
+  },
+  getOrderAdmin(id) {
+    return api.get(`/api/orders/admin/${id}`).then((r) => r.data)
+  },
 }
