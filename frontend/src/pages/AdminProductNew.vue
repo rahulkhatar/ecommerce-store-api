@@ -18,6 +18,7 @@ const form = ref({
   stockQuantity: '0',
   sku: '',
   imageUrl: '',
+  vendor: '',
 })
 
 const imageFile = ref(null)
@@ -65,6 +66,7 @@ async function handleSubmit() {
       stockQuantity: Number(form.value.stockQuantity),
       sku: form.value.sku,
       imageUrl,
+      vendor: form.value.vendor || null,
     }
 
     const created = await productService.createProduct(dto)
@@ -81,14 +83,14 @@ async function handleSubmit() {
 
 <template>
   <div class="mx-auto max-w-2xl">
-    <div class="rounded-3xl border border-white/40 bg-white/60 p-8 shadow-xl shadow-blue-900/5 backdrop-blur-2xl">
+    <div class="rounded border border-gray-300 bg-white p-8 shadow-sm">
       <h1 class="mb-1 text-2xl font-bold text-gray-800">Add Product</h1>
       <p class="mb-6 text-sm text-gray-500">Admin only - creates a new catalog listing.</p>
 
-      <div v-if="error" class="mb-4 rounded-xl border border-red-200 bg-red-50/80 px-4 py-2 text-sm text-red-600">
+      <div v-if="error" class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
         {{ error }}
       </div>
-      <div v-if="success" class="mb-4 rounded-xl border border-green-200 bg-green-50/80 px-4 py-2 text-sm text-green-600">
+      <div v-if="success" class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-600">
         Product created! Redirecting...
       </div>
 
@@ -96,26 +98,26 @@ async function handleSubmit() {
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Name</label>
           <input v-model="form.name" type="text" required
-            class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Description</label>
           <textarea v-model="form.description" required rows="3"
-            class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+            class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]"></textarea>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Short Description</label>
           <input v-model="form.shortDescription" type="text"
-            class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Category</label>
             <select v-model="form.categoryId" required
-              class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+              class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]">
               <option value="" disabled>Select a category</option>
               <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
             </select>
@@ -123,32 +125,38 @@ async function handleSubmit() {
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">SKU</label>
             <input v-model="form.sku" type="text" required
-              class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
           </div>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Brand</label>
+          <input v-model="form.vendor" type="text" placeholder="e.g. NovaTech"
+            class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
         </div>
 
         <div class="grid grid-cols-3 gap-4">
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Price</label>
             <input v-model="form.price" type="number" step="0.01" min="0.01" required
-              class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Discount Price</label>
             <input v-model="form.discountPrice" type="number" step="0.01" min="0"
-              class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium text-gray-700">Stock Qty</label>
             <input v-model="form.stockQuantity" type="number" min="0" required
-              class="w-full rounded-xl border border-white/60 bg-white/70 px-4 py-2 text-sm shadow-inner backdrop-blur-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              class="w-full rounded border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9900]" />
           </div>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Product Image</label>
           <div class="flex items-center gap-4">
-            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/60 bg-white/50 backdrop-blur-md">
+            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded border border-gray-200 bg-gray-50">
               <img v-if="imagePreview" :src="imagePreview" class="h-full w-full object-cover" alt="Preview" />
               <img v-else-if="form.imageUrl" :src="resolveImageUrl(form.imageUrl)" class="h-full w-full object-cover" alt="Preview" />
               <svg v-else class="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -156,13 +164,13 @@ async function handleSubmit() {
               </svg>
             </div>
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" @change="onFileChange"
-              class="block w-full text-sm text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-500" />
+              class="block w-full text-sm text-gray-600 file:mr-3 file:rounded-full file:border-0 file:bg-[#FF9900] file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-900 hover:file:bg-[#e88a00]" />
           </div>
           <p class="mt-1 text-xs text-gray-400">JPEG, PNG, WebP or GIF, up to 10MB.</p>
         </div>
 
         <button type="submit" :disabled="submitting || uploading"
-          class="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:opacity-95 disabled:opacity-50">
+          class="w-full rounded-full bg-[#FF9900] py-2.5 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-[#e88a00] disabled:opacity-50">
           {{ uploading ? 'Uploading image...' : submitting ? 'Creating...' : 'Create Product' }}
         </button>
       </form>

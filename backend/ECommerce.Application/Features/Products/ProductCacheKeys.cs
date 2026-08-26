@@ -22,8 +22,11 @@ internal static class ProductCacheKeys
         await cache.SetAsync(VersionKey, next, TimeSpan.FromDays(30), cancellationToken);
     }
 
-    public static string ListKey(int version, int page, int pageSize, Guid? categoryId)
-        => $"products:v{version}:list:{page}:{pageSize}:{categoryId?.ToString() ?? "all"}";
+    public static string ListKey(int version, int page, int pageSize, Guid? categoryId, decimal? minPrice = null, decimal? maxPrice = null, string? vendor = null)
+        => $"products:v{version}:list:{page}:{pageSize}:{categoryId?.ToString() ?? "all"}:{minPrice?.ToString() ?? "-"}:{maxPrice?.ToString() ?? "-"}:{vendor ?? "-"}";
+
+    public static string VendorsKey(int version, Guid? categoryId)
+        => $"products:v{version}:vendors:{categoryId?.ToString() ?? "all"}";
 
     public static string DetailKey(int version, Guid id)
         => $"products:v{version}:detail:{id}";

@@ -12,7 +12,10 @@ public record ProductDto(
     Guid CategoryId,
     string CategoryName,
     string? ImageUrl,
-    bool IsActive);
+    bool IsActive,
+    decimal? Rating,
+    int? ReviewCount,
+    string? Vendor);
 
 public record PagedResult<T>(List<T> Items, int Page, int PageSize, int TotalCount);
 
@@ -25,4 +28,5 @@ public record CreateProductDto(
     decimal? DiscountPrice,
     int StockQuantity,
     string Sku,
-    string? ImageUrl);
+    string? ImageUrl,
+    string? Vendor);

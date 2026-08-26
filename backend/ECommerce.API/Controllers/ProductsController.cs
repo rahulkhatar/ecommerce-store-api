@@ -12,8 +12,16 @@ public class ProductsController(IMediator mediator) : ControllerBase
     [HttpGet]
     [AllowAnonymous]
     public async Task<ActionResult<PagedResult<ProductDto>>> GetProducts(
-        [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] Guid? categoryId = null)
-        => Ok(await mediator.Send(new GetProductsQuery(page, pageSize, categoryId)));
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] Guid? categoryId = null,
+        [FromQuery] decimal? minPrice = null, [FromQuery] decimal? maxPrice = null, [FromQuery] string? vendor = null)
+        => Ok(await mediator.Send(new GetProductsQuery(page, pageSize, categoryId, minPrice, maxPrice, vendor)));
+
+    // Distinct brand/vendor names in the (optionally category-scoped) catalog -
+    // powers the sidebar's Brand filter.
+    [HttpGet("brands")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<string>>> GetBrands([FromQuery] Guid? categoryId = null)
+        => Ok(await mediator.Send(new GetVendorsQuery(categoryId)));
 
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
@@ -28,8 +36,8 @@ public class ProductsController(IMediator mediator) : ControllerBase
         return CreatedAtAction(nameof(GetProduct), new { id = result.Id }, result);
     }
 
-    // Hybrid (keyword + vector) search via Elasticsearch - distinct from the
-    // plain SQL filtering GET /api/products does. See SearchProductsQuery.
+    // Keyword search on name/description/category/vendor - distinct from the
+    // plain paged browsing GET /api/products does. See SearchProductsQuery.
     [HttpGet("search")]
     [AllowAnonymous]
     public async Task<ActionResult<List<ProductSearchHitDto>>> Search([FromQuery] string q, [FromQuery] int top = 10)
