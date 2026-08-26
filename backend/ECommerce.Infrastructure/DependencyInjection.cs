@@ -44,7 +44,18 @@ public static class DependencyInjection
         services.AddDistributedMemoryCache();
         services.AddSingleton<ICacheService, DistributedMemoryCacheService>();
 
-        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        // R2 (Cloudflare's S3-compatible object storage) whenever it's
+        // configured - Render's own disk is ephemeral, so production needs
+        // uploads to land somewhere durable. Local dev has no R2 config, so
+        // it keeps writing to wwwroot/uploads as before.
+        if (!string.IsNullOrWhiteSpace(configuration["R2:AccessKeyId"]))
+        {
+            services.AddScoped<IFileStorageService, R2FileStorageService>();
+        }
+        else
+        {
+            services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        }
 
         // Scoped (not singleton): it depends on ISender/IChatHistoryRepository,
         // which are themselves scoped - a singleton here would capture a
