@@ -35,7 +35,7 @@ export const useAiStore = defineStore('ai', () => {
     try {
       const reply = await aiService.sendMessage(sessionId.value, text)
       persistSession(reply.sessionId)
-      messages.value.push({ role: 'Assistant', content: reply.message })
+      messages.value.push({ role: 'Assistant', content: reply.message, products: reply.products ?? [] })
     } catch (e) {
       error.value = e.response?.data?.message || 'The assistant is unavailable right now.'
       messages.value.push({ role: 'Assistant', content: `Sorry, I ran into a problem: ${error.value}` })

@@ -31,8 +31,15 @@ public class OpenAiShoppingAssistantService(
         "You are the shopping assistant for ECommerce Store. Help customers find products, " +
         "check product details, and check the status of their own orders. Use the available " +
         "tools rather than guessing - if you don't have enough information from a tool result, " +
-        "say so rather than making something up. Keep answers concise and friendly. " +
-        "You can only ever see the current customer's own orders, never anyone else's.";
+        "say so rather than making something up. You can only ever see the current customer's " +
+        "own orders, never anyone else's. " +
+        "You're also the store's general customer-service contact, not just a product/order " +
+        "lookup tool - answer greetings, small talk, and general shopping questions (how checkout " +
+        "works, what payment methods this store's checkout page offers, how to track an order) " +
+        "conversationally and helpfully. The one thing to never do is invent specific store " +
+        "policies or facts you don't actually have (exact return windows, warranty terms, physical " +
+        "store locations, etc.) - for those, say you don't have that information rather than " +
+        "guessing. Keep every answer concise and friendly.";
 
     public async Task<AssistantReply> AskAsync(Guid customerId, Guid? sessionId, string message, CancellationToken cancellationToken = default)
     {
@@ -45,7 +52,8 @@ public class OpenAiShoppingAssistantService(
         messages.Add(new ChatMessage(ChatRole.User, message));
 
         var chatClient = BuildChatClient();
-        var tools = BuildTools(customerId, cancellationToken);
+        var foundProducts = new Dictionary<Guid, AssistantProductRef>();
+        var tools = BuildTools(customerId, foundProducts, cancellationToken);
 
         logger.LogInformation("Assistant request: customer {CustomerId}, session {SessionId}, {ToolCount} tools available.",
             customerId, actualSessionId, tools.Count);
@@ -68,7 +76,7 @@ public class OpenAiShoppingAssistantService(
         }, cancellationToken);
         await chatHistoryRepository.SaveChangesAsync(cancellationToken);
 
-        return new AssistantReply(actualSessionId, replyText);
+        return new AssistantReply(actualSessionId, replyText, foundProducts.Values.ToList());
     }
 
     private IChatClient BuildChatClient()
@@ -82,11 +90,16 @@ public class OpenAiShoppingAssistantService(
             .Build();
     }
 
-    private List<AITool> BuildTools(Guid customerId, CancellationToken cancellationToken)
+    private List<AITool> BuildTools(Guid customerId, Dictionary<Guid, AssistantProductRef> foundProducts, CancellationToken cancellationToken)
     {
         async Task<string> SearchProducts([Description("Keywords to search the product catalog for, e.g. a product name or category.")] string query)
         {
             var results = await sender.Send(new SearchProductsQuery(query, 5), cancellationToken);
+            foreach (var r in results)
+            {
+                foundProducts[r.ProductId] = new AssistantProductRef(r.ProductId, r.Name, r.Price, r.CategoryName, r.ImageUrl, r.Description);
+            }
+
             return results.Count == 0
                 ? "No products matched that search."
                 : string.Join('\n', results.Select(r => $"- {r.Name} (id: {r.ProductId}) - ${r.Price} - {r.CategoryName}"));
@@ -98,6 +111,7 @@ public class OpenAiShoppingAssistantService(
             {
                 var p = await sender.Send(new GetProductByIdQuery(productId), cancellationToken);
                 var price = p.DiscountPrice ?? p.Price;
+                foundProducts[p.Id] = new AssistantProductRef(p.Id, p.Name, price, p.CategoryName, p.ImageUrl, p.Description);
                 return $"{p.Name}: {p.Description} Price: ${price}. {(p.IsActive ? "Available." : "Not currently available.")}";
             }
             catch (NotFoundException)

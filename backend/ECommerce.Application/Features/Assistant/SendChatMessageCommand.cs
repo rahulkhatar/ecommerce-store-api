@@ -25,6 +25,6 @@ public class SendChatMessageCommandHandler(IShoppingAssistantService assistant)
     public async Task<ChatReplyDto> Handle(SendChatMessageCommand request, CancellationToken cancellationToken)
     {
         var reply = await assistant.AskAsync(request.CustomerId, request.Dto.SessionId, request.Dto.Message, cancellationToken);
-        return new ChatReplyDto(reply.SessionId, reply.Message);
+        return new ChatReplyDto(reply.SessionId, reply.Message, reply.Products);
     }
 }
