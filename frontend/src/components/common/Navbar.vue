@@ -173,7 +173,7 @@ function selectCategory(categoryId) {
              (not a tinted overlay). Fixed so it doesn't scroll away with
              the (possibly long) department list. -->
         <div
-          class="fixed inset-0 bg-cover bg-center opacity-20 sm:hidden"
+          class="fixed inset-0 bg-cover bg-center opacity-[0.08] sm:hidden"
           :style="{ backgroundImage: `url(${navBgMobile})` }"
         />
 
