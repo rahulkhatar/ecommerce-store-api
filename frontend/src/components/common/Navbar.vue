@@ -4,6 +4,7 @@ import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useProductsStore } from '@/stores/products'
+import navBgMobile from '@/assets/images/nav-bg-mobile.jpg'
 
 const auth = useAuthStore()
 const cart = useCartStore()
@@ -61,8 +62,16 @@ function selectCategory(categoryId) {
 <template>
   <header class="sticky top-0 z-40 shadow-md">
     <!-- Primary bar -->
-    <div class="bg-[#131921] text-white">
-      <div class="mx-auto max-w-7xl px-4 py-2.5">
+    <div class="relative overflow-hidden bg-[#131921] text-white">
+      <!-- Mobile-only background photo, faded so the bar's own content on
+           top stays readable - image itself carries the opacity (not a
+           tinted overlay), per what was asked for. -->
+      <div
+        class="absolute inset-0 bg-cover bg-center opacity-20 sm:hidden"
+        :style="{ backgroundImage: `url(${navBgMobile})` }"
+      />
+
+      <div class="relative mx-auto max-w-7xl px-4 py-2.5">
         <div class="flex items-center gap-3">
           <RouterLink :to="{ name: 'home' }" class="shrink-0 rounded border border-transparent py-1.5 text-lg font-bold tracking-tight text-white hover:border-white/40 sm:text-xl">
             ecommerce<span class="text-[#FF9900]">.store</span>
