@@ -7,23 +7,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+// Render's containers cap inotify instances very low (128). WebApplication
+// .CreateBuilder(args) itself - before it even returns - wires up
+// appsettings*.json with reloadOnChange: true, which starts a
+// FileSystemWatcher and crashes the process outright on that cap; a fix
+// applied to the builder afterward is too late, since the crash happens
+// during construction. hostBuilder:reloadConfigOnChange is read from a
+// DOTNET_-prefixed env var at that point, so setting it in-process (not
+// relying on it being configured correctly on the host) is what actually
+// has to happen first. Real config here is static per deploy anyway (env
+// vars, not editing appsettings.json on a live server), so there's nothing
+// to reload.
+Environment.SetEnvironmentVariable("DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE", "false");
 
-// Render's containers cap inotify instances very low (128), and
-// WebApplication.CreateBuilder's default appsettings*.json sources watch
-// for file changes (reloadOnChange: true) - that alone exceeds the cap and
-// crashes the process before it even starts listening. Real config here is
-// static per deploy (env vars, not editing appsettings.json on a live
-// server), so there's nothing to reload; rebuilding the sources without
-// file-watching removes the crash instead of depending on the
-// DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE env var being set correctly.
-builder.Configuration.Sources.Clear();
-builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
-    .AddEnvironmentVariables()
-    .AddCommandLine(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration).WriteTo.Console());
