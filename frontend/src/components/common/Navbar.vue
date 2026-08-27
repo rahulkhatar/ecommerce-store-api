@@ -62,12 +62,82 @@ function selectCategory(categoryId) {
   <header class="sticky top-0 z-40 shadow-md">
     <!-- Primary bar -->
     <div class="bg-[#131921] text-white">
-      <div class="mx-auto flex max-w-7xl items-center gap-4 px-4 py-2.5">
-        <RouterLink :to="{ name: 'home' }" class="shrink-0 rounded border border-transparent px-2 py-1.5 text-xl font-bold tracking-tight text-white hover:border-white/40">
-          ecommerce<span class="text-[#FF9900]">.store</span>
-        </RouterLink>
+      <div class="mx-auto max-w-7xl px-4 py-2.5">
+        <div class="flex items-center gap-3">
+          <RouterLink :to="{ name: 'home' }" class="shrink-0 rounded border border-transparent py-1.5 text-lg font-bold tracking-tight text-white hover:border-white/40 sm:text-xl">
+            ecommerce<span class="text-[#FF9900]">.store</span>
+          </RouterLink>
 
-        <form class="flex min-w-0 flex-1 items-stretch" @submit.prevent="handleSearch">
+          <!-- Search sits inline here on sm+; on mobile it's its own full-width
+               row below instead, so it isn't squeezed to nothing next to the
+               login/cart/menu controls. -->
+          <form class="hidden min-w-0 flex-1 items-stretch sm:flex" @submit.prevent="handleSearch">
+            <input
+              v-model="searchTerm"
+              type="search"
+              placeholder="Search products..."
+              class="min-w-0 flex-1 rounded-l border-0 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              class="flex items-center justify-center rounded-r bg-[#FF9900] px-4 text-gray-900 hover:bg-[#e88a00]"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 1 1 4 10.5a6.5 6.5 0 0 1 13 0Z" />
+              </svg>
+            </button>
+          </form>
+
+          <nav class="ml-auto flex shrink-0 items-center gap-2 text-sm">
+            <!-- Always visible, at every width - this is the login-state
+                 indicator itself (not just a link), so it can never be
+                 ambiguous whether you're signed in: solid orange "Login" vs
+                 an outlined "Sign Out", never both, never neither. -->
+            <button
+              v-if="auth.isAuthenticated"
+              type="button"
+              class="shrink-0 rounded-full border border-white/40 px-3 py-1.5 text-xs font-semibold hover:bg-white/10 sm:text-sm"
+              @click="handleLogout"
+            >
+              Sign Out
+            </button>
+            <RouterLink
+              v-else
+              to="/login"
+              class="shrink-0 rounded-full bg-[#FF9900] px-3 py-1.5 text-xs font-semibold text-gray-900 hover:bg-[#e88a00] sm:text-sm"
+            >
+              Login
+            </RouterLink>
+
+            <RouterLink to="/cart" class="relative flex shrink-0 items-center rounded border border-transparent p-1.5 hover:border-white/40">
+              <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.994-4.706 2.608-7.183.075-.3-.155-.585-.465-.585H5.106M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+              </svg>
+              <span
+                v-if="cart.itemCount > 0"
+                class="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF9900] text-xs font-bold text-gray-900"
+              >
+                {{ cart.itemCount }}
+              </span>
+            </RouterLink>
+
+            <!-- PRYPCO-style pill trigger - one menu, every screen size. -->
+            <button
+              type="button"
+              class="flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 text-xs font-medium hover:bg-white/20 sm:gap-2 sm:px-4 sm:text-sm"
+              @click="menuOpen = true"
+            >
+              Menu
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+              </svg>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Mobile-only search row - inline in the row above on sm+ instead. -->
+        <form class="mt-2 flex items-stretch sm:hidden" @submit.prevent="handleSearch">
           <input
             v-model="searchTerm"
             type="search"
@@ -84,44 +154,6 @@ function selectCategory(categoryId) {
             </svg>
           </button>
         </form>
-
-        <nav class="flex shrink-0 items-center gap-3 text-sm">
-          <template v-if="auth.isAuthenticated">
-            <RouterLink to="/orders" class="hidden rounded border border-transparent px-2 py-1.5 leading-tight hover:border-white/40 sm:block">
-              <p class="text-xs text-gray-300">Hi, {{ auth.user?.firstName }}</p>
-              <p class="font-semibold">Returns &amp; Orders</p>
-            </RouterLink>
-          </template>
-          <RouterLink v-else to="/login" class="hidden rounded border border-transparent px-2 py-1.5 leading-tight hover:border-white/40 sm:block">
-            <p class="text-xs text-gray-300">Hello, sign in</p>
-            <p class="font-semibold">Account &amp; Lists</p>
-          </RouterLink>
-
-          <RouterLink to="/cart" class="relative flex items-end gap-1 rounded border border-transparent px-2 py-1.5 hover:border-white/40">
-            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.994-4.706 2.608-7.183.075-.3-.155-.585-.465-.585H5.106M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-            </svg>
-            <span
-              v-if="cart.itemCount > 0"
-              class="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF9900] text-xs font-bold text-gray-900"
-            >
-              {{ cart.itemCount }}
-            </span>
-            <span class="hidden pb-0.5 text-sm font-semibold sm:inline">Cart</span>
-          </RouterLink>
-
-          <!-- PRYPCO-style pill trigger - one menu, every screen size. -->
-          <button
-            type="button"
-            class="flex shrink-0 items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium hover:bg-white/20"
-            @click="menuOpen = true"
-          >
-            Menu
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
-            </svg>
-          </button>
-        </nav>
       </div>
     </div>
 
