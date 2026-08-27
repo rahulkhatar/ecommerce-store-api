@@ -178,9 +178,18 @@ function selectCategory(categoryId) {
         />
 
         <div class="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <RouterLink :to="{ name: 'home' }" class="text-lg font-bold tracking-tight text-gray-900" @click="menuOpen = false">
-            ecommerce<span class="text-[#FF9900]">.store</span>
-          </RouterLink>
+          <div>
+            <RouterLink :to="{ name: 'home' }" class="text-lg font-bold tracking-tight text-gray-900" @click="menuOpen = false">
+              ecommerce<span class="text-[#FF9900]">.store</span>
+            </RouterLink>
+            <!-- The Login/Sign Out pill in the top bar tells you *whether*
+                 you're signed in; this says *as whom*, so it's unambiguous
+                 which account is active. -->
+            <p v-if="auth.isAuthenticated" class="mt-0.5 text-sm text-gray-500">
+              Signed in as <span class="font-medium text-gray-700">{{ auth.user?.firstName || auth.user?.email }}</span>
+            </p>
+            <p v-else class="mt-0.5 text-sm text-gray-500">Not signed in</p>
+          </div>
           <button
             type="button"
             aria-label="Close menu"
