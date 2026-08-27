@@ -62,16 +62,8 @@ function selectCategory(categoryId) {
 <template>
   <header class="sticky top-0 z-40 shadow-md">
     <!-- Primary bar -->
-    <div class="relative overflow-hidden bg-[#131921] text-white">
-      <!-- Mobile-only background photo, faded so the bar's own content on
-           top stays readable - image itself carries the opacity (not a
-           tinted overlay), per what was asked for. -->
-      <div
-        class="absolute inset-0 bg-cover bg-center opacity-20 sm:hidden"
-        :style="{ backgroundImage: `url(${navBgMobile})` }"
-      />
-
-      <div class="relative mx-auto max-w-7xl px-4 py-2.5">
+    <div class="bg-[#131921] text-white">
+      <div class="mx-auto max-w-7xl px-4 py-2.5">
         <div class="flex items-center gap-3">
           <RouterLink :to="{ name: 'home' }" class="shrink-0 rounded border border-transparent py-1.5 text-lg font-bold tracking-tight text-white hover:border-white/40 sm:text-xl">
             ecommerce<span class="text-[#FF9900]">.store</span>
@@ -176,7 +168,16 @@ function selectCategory(categoryId) {
       leave-to-class="opacity-0"
     >
       <div v-if="menuOpen" class="fixed inset-0 z-50 overflow-y-auto bg-white">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+        <!-- Mobile-only background photo, faded so the menu's own content on
+             top stays readable - the image itself carries the opacity
+             (not a tinted overlay). Fixed so it doesn't scroll away with
+             the (possibly long) department list. -->
+        <div
+          class="fixed inset-0 bg-cover bg-center opacity-20 sm:hidden"
+          :style="{ backgroundImage: `url(${navBgMobile})` }"
+        />
+
+        <div class="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <RouterLink :to="{ name: 'home' }" class="text-lg font-bold tracking-tight text-gray-900" @click="menuOpen = false">
             ecommerce<span class="text-[#FF9900]">.store</span>
           </RouterLink>
@@ -192,7 +193,7 @@ function selectCategory(categoryId) {
           </button>
         </div>
 
-        <div class="mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+        <div class="relative mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-10 px-4 pb-16 pt-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           <div v-for="dept in topLevelCategories" :key="dept.id">
             <button
               type="button"
