@@ -9,6 +9,22 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render's containers cap inotify instances very low (128), and
+// WebApplication.CreateBuilder's default appsettings*.json sources watch
+// for file changes (reloadOnChange: true) - that alone exceeds the cap and
+// crashes the process before it even starts listening. Real config here is
+// static per deploy (env vars, not editing appsettings.json on a live
+// server), so there's nothing to reload; rebuilding the sources without
+// file-watching removes the crash instead of depending on the
+// DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE env var being set correctly.
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables()
+    .AddCommandLine(args);
+
 builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration).WriteTo.Console());
 
