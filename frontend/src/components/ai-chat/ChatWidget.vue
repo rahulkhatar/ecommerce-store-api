@@ -77,6 +77,7 @@ watch(() => ai.messages.length, scrollToBottom)
             :class="m.role === 'User' ? 'items-end' : 'items-start'"
           >
             <div
+              v-if="!m.products?.length"
               class="max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-snug shadow-sm"
               :class="m.role === 'User'
                 ? 'bg-[#232F3E] text-white rounded-br-sm'
