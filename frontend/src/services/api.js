@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useUiStatusStore } from '@/stores/uiStatus'
 import router from '@/router'
 
 const api = axios.create({
@@ -11,12 +12,17 @@ api.interceptors.request.use((config) => {
   if (auth.token) {
     config.headers.Authorization = `Bearer ${auth.token}`
   }
+  useUiStatusStore().requestStarted()
   return config
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useUiStatusStore().requestEnded()
+    return response
+  },
   (error) => {
+    useUiStatusStore().requestEnded()
     if (error.response?.status === 401) {
       const auth = useAuthStore()
       // Only treat this as a session expiry if we actually thought we were
