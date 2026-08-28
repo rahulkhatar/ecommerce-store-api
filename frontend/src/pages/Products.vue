@@ -101,7 +101,12 @@ const filteredSearchResults = computed(() =>
 )
 
 async function loadHomeSections() {
-  if (topLevelCategories.value.length === 0) return
+  if (topLevelCategories.value.length === 0) {
+    // Categories failed to load (or there genuinely are none) - resolve to
+    // the empty state instead of leaving the loader spinning forever.
+    homeLoading.value = false
+    return
+  }
   homeLoading.value = true
   try {
     // categoryId here matches the department AND its subcategories (see
@@ -172,6 +177,16 @@ async function syncFromRoute() {
 }
 
 onMounted(async () => {
+  // fetchCategories is itself a network call (slow on a cold Render
+  // instance) and runs before syncFromRoute sets any loading flag below -
+  // without this, there's a gap where nothing is "loading" yet and nothing
+  // has loaded, so the empty-state message renders prematurely. Set the
+  // flag for whichever view is about to show up front so its loader is
+  // already visible through that gap.
+  if (isSearchMode.value) searchLoading.value = true
+  else if (categoryQuery.value) store.loading = true
+  else homeLoading.value = true
+
   await store.fetchCategories()
   await syncFromRoute()
 })
@@ -239,7 +254,7 @@ watch(() => route.query, syncFromRoute)
             <span class="font-medium text-gray-800">{{ activeCategoryName }}</span>
           </nav>
 
-          <CompassLoader v-if="store.loading" label="Loading products..." />
+          <CompassLoader v-if="store.loading" label="Getting Products....." />
           <p v-else-if="store.error" class="text-red-600">{{ store.error }}</p>
           <p v-else-if="store.items.length === 0" class="text-gray-500">No products found.</p>
 
@@ -263,7 +278,7 @@ watch(() => route.query, syncFromRoute)
     </template>
 
     <template v-else>
-      <CompassLoader v-if="homeLoading" label="Loading products..." />
+      <CompassLoader v-if="homeLoading" label="Getting Products....." />
 
       <section
         v-for="section in homeSections"
