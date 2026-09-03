@@ -84,7 +84,13 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var corsOrigins = (builder.Configuration["CorsOrigins"] ?? "")
-    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    // WithOrigins() below requires an exact match against the browser's Origin
+    // header, which never has a trailing slash - trim it here so a config typo
+    // (or a URL copy-pasted straight from the address bar) doesn't silently
+    // break CORS for that origin.
+    .Select(o => o.TrimEnd('/'))
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {
