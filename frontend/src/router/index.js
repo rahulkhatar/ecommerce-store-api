@@ -3,6 +3,9 @@ import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   { path: '/', name: 'home', component: () => import('@/pages/Products.vue') },
+  { path: '/about-us', name: 'about-us', component: () => import('@/pages/AboutUs.vue') },
+  { path: '/contact-us', name: 'contact-us', component: () => import('@/pages/ContactUs.vue') },
+  { path: '/inquiry', name: 'inquiry', component: () => import('@/pages/Inquiry.vue') },
   { path: '/login', name: 'login', component: () => import('@/pages/Login.vue') },
   { path: '/register', name: 'register', component: () => import('@/pages/Register.vue') },
   { path: '/products/:id', name: 'product-detail', component: () => import('@/pages/ProductDetail.vue'), props: true },

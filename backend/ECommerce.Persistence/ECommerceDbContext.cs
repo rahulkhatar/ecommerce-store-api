@@ -16,6 +16,8 @@ public partial class ECommerceDbContext : DbContext
 
     public virtual DbSet<AiknowledgeBase> AiknowledgeBases { get; set; }
 
+    public virtual DbSet<Inquiry> Inquiries { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<ChatHistory> ChatHistories { get; set; }
@@ -158,6 +160,20 @@ public partial class ECommerceDbContext : DbContext
             entity.HasOne(d => d.User).WithOne(p => p.Customer)
                 .HasForeignKey<Customer>(d => d.UserId)
                 .HasConstraintName("FK_Customers_User");
+        });
+
+        modelBuilder.Entity<Inquiry>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Inquiries");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Subject).HasMaxLength(255);
+            entity.Property(e => e.IsResolved).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
         });
 
         modelBuilder.Entity<Order>(entity =>

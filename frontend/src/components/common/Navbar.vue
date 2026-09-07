@@ -221,6 +221,15 @@ function selectCategory(categoryId) {
           </div>
 
           <div>
+            <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#C7511F]">Company</p>
+            <ul class="space-y-2.5 text-base text-gray-700">
+              <li><RouterLink to="/about-us" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">About Us</RouterLink></li>
+              <li><RouterLink to="/contact-us" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">Contact Us</RouterLink></li>
+              <li><RouterLink to="/inquiry" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">Inquiry</RouterLink></li>
+            </ul>
+          </div>
+
+          <div>
             <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#C7511F]">Account</p>
             <ul class="space-y-2.5 text-base text-gray-700">
               <li v-if="auth.isAuthenticated">
