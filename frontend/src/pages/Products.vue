@@ -53,6 +53,36 @@ const parentCategoryName = computed(() => {
   return store.categories.find((c) => c.id === activeCategory.value.parentCategoryId)?.name ?? null
 })
 
+const TYPE_ICONS = {
+  'Mobile Phones': '📱', Laptops: '💻', Keyboards: '⌨️', Mouse: '🖱️', Smartwatches: '⌚',
+  Audio: '🎧', 'Computer Accessories': '🖥️', 'Power & Charging': '🔌', Webcams: '📷',
+  Jeans: '👖', Sweaters: '🧶', 'T-Shirts': '👕', Jackets: '🧥',
+  'Non-Fiction': '📘', Fiction: '📕', "Children's Books": '📖',
+  'Kitchen & Dining': '🍳', 'Lighting & Decor': '💡', Furniture: '🛋️',
+  Baseball: '⚾', Caps: '🧢', Football: '🏈', 'Kit Bags': '🎒', Skates: '⛸️', Volleyball: '🏐',
+  'Board Games': '🎲', 'Building Blocks': '🧱', 'Action Figures': '🦸',
+}
+function typeIcon(name) {
+  return TYPE_ICONS[name] || '🛍️'
+}
+
+// A handful of products from sibling type categories under the same
+// department, shown as lightweight cross-sell suggestions once you've
+// drilled into a specific type (not on the department landing page itself,
+// where "siblings" would be every other product in the department already
+// shown in the main grid).
+const relatedProducts = ref([])
+async function loadRelated() {
+  relatedProducts.value = []
+  if (!activeCategory.value?.parentCategoryId) return
+  const siblings = typeCategories.value.filter((c) => c.id !== selectedCategory.value).slice(0, 3)
+  if (siblings.length === 0) return
+  const results = await Promise.all(
+    siblings.map((c) => productService.getProducts({ page: 1, pageSize: 4, categoryId: c.id })),
+  )
+  relatedProducts.value = results.flatMap((r) => r.items)
+}
+
 // The search endpoint returns a lighter shape (ProductSearchHitDto) than the
 // browse endpoint's ProductDto - normalize to what ProductCard expects so
 // one component works for both.
@@ -87,6 +117,7 @@ async function loadBrowse(categoryId) {
     page: 1, categoryId, minPrice: minPriceQuery.value, maxPrice: maxPriceQuery.value, vendor: brandQuery.value,
   })
   await store.fetchBrands(categoryId)
+  await loadRelated()
 }
 
 // The search endpoint doesn't take a price range (it's a small, already
@@ -254,19 +285,26 @@ watch(() => route.query, syncFromRoute)
             <span class="font-medium text-gray-800">{{ activeCategoryName }}</span>
           </nav>
 
-          <!-- DepartmentSidebar (with its own "Shop by Type" list) is
-               desktop-only (md:block) - without this, subcategories were
-               simply unreachable on mobile, which is where this gets tested
-               against a real phone most. -->
-          <div v-if="typeCategories.length" class="flex gap-2 overflow-x-auto pb-1 md:hidden">
+          <!-- A prominent tile row for subcategories, at every screen size -
+               DepartmentSidebar's own "Shop by Type" list is desktop-only
+               (md:block) and easy to miss below the fold, so this is the
+               primary way to see "Electronics has Mobiles, Laptops,
+               Smartwatches, ..." rather than a small sidebar list. -->
+          <div v-if="typeCategories.length" class="flex gap-4 overflow-x-auto rounded border border-gray-200 bg-white px-4 py-3">
             <button
               v-for="t in typeCategories"
               :key="t.id"
-              class="shrink-0 rounded-full border px-3 py-1.5 text-sm"
-              :class="selectedCategory === t.id ? 'border-[#FF9900] bg-[#FF9900] text-white' : 'border-gray-300 bg-white text-gray-700'"
+              class="flex w-20 shrink-0 flex-col items-center gap-1.5"
+              :class="selectedCategory === t.id ? 'text-[#C7511F]' : 'text-gray-700 hover:text-[#C7511F]'"
               @click="selectCategory(t.id)"
             >
-              {{ t.name }}
+              <span
+                class="flex h-16 w-16 items-center justify-center rounded-full text-3xl transition"
+                :class="selectedCategory === t.id ? 'bg-orange-50 ring-2 ring-[#FF9900]' : 'bg-gray-50 hover:bg-orange-50'"
+              >
+                {{ typeIcon(t.name) }}
+              </span>
+              <span class="line-clamp-2 text-center text-xs font-medium">{{ t.name }}</span>
             </button>
           </div>
 
@@ -288,6 +326,13 @@ watch(() => route.query, syncFromRoute)
             >
               {{ p }}
             </button>
+          </div>
+
+          <div v-if="relatedProducts.length" class="mt-10">
+            <h2 class="mb-4 text-lg font-semibold text-gray-900">Related Products</h2>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              <ProductCard v-for="p in relatedProducts" :key="p.id" :product="p" />
+            </div>
           </div>
         </div>
       </div>
