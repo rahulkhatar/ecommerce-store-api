@@ -244,6 +244,9 @@ function selectCategory(categoryId) {
               <li v-if="auth.isAdmin">
                 <RouterLink to="/admin/orders" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">Manage Orders</RouterLink>
               </li>
+              <li v-if="auth.isAdmin">
+                <RouterLink to="/admin/inquiries" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">Inquiries</RouterLink>
+              </li>
               <li v-if="auth.isAuthenticated">
                 <button type="button" class="hover:text-gray-950 hover:underline" @click="handleLogout">Sign Out</button>
               </li>
