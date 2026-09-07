@@ -254,6 +254,22 @@ watch(() => route.query, syncFromRoute)
             <span class="font-medium text-gray-800">{{ activeCategoryName }}</span>
           </nav>
 
+          <!-- DepartmentSidebar (with its own "Shop by Type" list) is
+               desktop-only (md:block) - without this, subcategories were
+               simply unreachable on mobile, which is where this gets tested
+               against a real phone most. -->
+          <div v-if="typeCategories.length" class="flex gap-2 overflow-x-auto pb-1 md:hidden">
+            <button
+              v-for="t in typeCategories"
+              :key="t.id"
+              class="shrink-0 rounded-full border px-3 py-1.5 text-sm"
+              :class="selectedCategory === t.id ? 'border-[#FF9900] bg-[#FF9900] text-white' : 'border-gray-300 bg-white text-gray-700'"
+              @click="selectCategory(t.id)"
+            >
+              {{ t.name }}
+            </button>
+          </div>
+
           <CompassLoader v-if="store.loading" label="Getting Products....." />
           <p v-else-if="store.error" class="text-red-600">{{ store.error }}</p>
           <p v-else-if="store.items.length === 0" class="text-gray-500">No products found.</p>
