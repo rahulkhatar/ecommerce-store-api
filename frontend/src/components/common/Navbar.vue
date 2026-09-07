@@ -4,6 +4,7 @@ import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useProductsStore } from '@/stores/products'
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import navBgMobile from '@/assets/images/nav-bg-mobile.jpg'
 
 const auth = useAuthStore()
@@ -48,7 +49,15 @@ function handleSearch() {
   router.push(q ? { name: 'home', query: { q } } : { name: 'home' })
 }
 
+// Signing out is destructive enough (loses the in-progress cart view, kicks
+// you off any admin page) to warrant a confirmation rather than acting on
+// the first click - logoutConfirmOpen gates the actual auth.logout() call
+// behind the dialog instead of either Sign Out button firing it directly.
+const logoutConfirmOpen = ref(false)
+
 function handleLogout() {
+  logoutConfirmOpen.value = false
+  menuOpen.value = false
   auth.logout()
   router.push({ name: 'home' })
 }
@@ -99,7 +108,7 @@ function selectCategory(categoryId) {
               v-if="auth.isAuthenticated"
               type="button"
               class="shrink-0 rounded-full border border-white/40 px-3 py-1.5 text-xs font-semibold hover:bg-white/10 sm:text-sm"
-              @click="handleLogout"
+              @click="logoutConfirmOpen = true"
             >
               Sign Out
             </button>
@@ -248,12 +257,22 @@ function selectCategory(categoryId) {
                 <RouterLink to="/admin/inquiries" class="hover:text-gray-950 hover:underline" @click="menuOpen = false">Inquiries</RouterLink>
               </li>
               <li v-if="auth.isAuthenticated">
-                <button type="button" class="hover:text-gray-950 hover:underline" @click="handleLogout">Sign Out</button>
+                <button type="button" class="hover:text-gray-950 hover:underline" @click="logoutConfirmOpen = true">Sign Out</button>
               </li>
             </ul>
           </div>
         </div>
       </div>
     </Transition>
+
+    <ConfirmDialog
+      :open="logoutConfirmOpen"
+      title="Log out?"
+      message="You'll need to log in again to check out or view your orders."
+      confirm-text="Log out"
+      cancel-text="Cancel"
+      @confirm="handleLogout"
+      @cancel="logoutConfirmOpen = false"
+    />
   </header>
 </template>
