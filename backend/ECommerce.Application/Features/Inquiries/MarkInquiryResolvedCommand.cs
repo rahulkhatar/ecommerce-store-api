@@ -18,6 +18,7 @@ public class MarkInquiryResolvedCommandHandler(IInquiryRepository inquiryReposit
         inquiry.UpdatedAt = DateTime.UtcNow;
         await inquiryRepository.SaveChangesAsync(cancellationToken);
 
-        return new InquiryDto(inquiry.Id, inquiry.Name, inquiry.Email, inquiry.Phone, inquiry.Subject, inquiry.Message, inquiry.IsResolved ?? false, inquiry.CreatedAt);
+        return new InquiryDto(inquiry.Id, inquiry.Name, inquiry.Email, inquiry.Phone, inquiry.Subject, inquiry.Message,
+            inquiry.IsResolved ?? false, inquiry.AdminReply, inquiry.RepliedAt, inquiry.CreatedAt);
     }
 }

@@ -10,4 +10,7 @@ export default {
   markResolved(id) {
     return api.patch(`/api/inquiries/${id}/resolve`).then((r) => r.data)
   },
+  reply(id, message) {
+    return api.post(`/api/inquiries/${id}/reply`, { message }).then((r) => r.data)
+  },
 }

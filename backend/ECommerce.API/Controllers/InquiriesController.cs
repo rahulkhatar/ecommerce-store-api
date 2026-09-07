@@ -24,4 +24,9 @@ public class InquiriesController(IMediator mediator) : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<InquiryDto>> MarkResolved(Guid id)
         => Ok(await mediator.Send(new MarkInquiryResolvedCommand(id)));
+
+    [HttpPost("{id:guid}/reply")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<InquiryDto>> Reply(Guid id, ReplyToInquiryDto dto)
+        => Ok(await mediator.Send(new ReplyToInquiryCommand(id, dto)));
 }

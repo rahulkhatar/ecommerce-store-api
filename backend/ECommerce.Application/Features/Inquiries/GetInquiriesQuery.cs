@@ -16,7 +16,8 @@ public class GetInquiriesQueryHandler(IInquiryRepository inquiryRepository)
 
         var (items, totalCount) = await inquiryRepository.GetAllPagedAsync(page, pageSize, cancellationToken);
         var dtos = items
-            .Select(i => new InquiryDto(i.Id, i.Name, i.Email, i.Phone, i.Subject, i.Message, i.IsResolved ?? false, i.CreatedAt))
+            .Select(i => new InquiryDto(i.Id, i.Name, i.Email, i.Phone, i.Subject, i.Message,
+                i.IsResolved ?? false, i.AdminReply, i.RepliedAt, i.CreatedAt))
             .ToList();
 
         return new PagedResult<InquiryDto>(dtos, page, pageSize, totalCount);

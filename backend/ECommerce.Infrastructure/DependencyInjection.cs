@@ -1,6 +1,7 @@
 using ECommerce.Domain.Interfaces;
 using ECommerce.Infrastructure.Authentication;
 using ECommerce.Infrastructure.Caching;
+using ECommerce.Infrastructure.Email;
 using ECommerce.Infrastructure.Payments;
 using ECommerce.Infrastructure.Storage;
 using ECommerce.Infrastructure.AI;
@@ -61,6 +62,8 @@ public static class DependencyInjection
         // which are themselves scoped - a singleton here would capture a
         // request-scoped dependency past its lifetime.
         services.AddScoped<IShoppingAssistantService, OpenAiShoppingAssistantService>();
+
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }

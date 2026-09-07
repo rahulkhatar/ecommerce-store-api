@@ -34,6 +34,7 @@ public class CreateInquiryCommandHandler(IInquiryRepository inquiryRepository)
         await inquiryRepository.AddAsync(inquiry, cancellationToken);
         await inquiryRepository.SaveChangesAsync(cancellationToken);
 
-        return new InquiryDto(inquiry.Id, inquiry.Name, inquiry.Email, inquiry.Phone, inquiry.Subject, inquiry.Message, inquiry.IsResolved ?? false, inquiry.CreatedAt);
+        return new InquiryDto(inquiry.Id, inquiry.Name, inquiry.Email, inquiry.Phone, inquiry.Subject, inquiry.Message,
+            inquiry.IsResolved ?? false, inquiry.AdminReply, inquiry.RepliedAt, inquiry.CreatedAt);
     }
 }

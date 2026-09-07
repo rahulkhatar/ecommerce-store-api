@@ -13,4 +13,8 @@ public class Inquiry : BaseEntity
     public string Message { get; set; } = null!;
 
     public bool? IsResolved { get; set; }
+
+    public string? AdminReply { get; set; }
+
+    public DateTime? RepliedAt { get; set; }
 }

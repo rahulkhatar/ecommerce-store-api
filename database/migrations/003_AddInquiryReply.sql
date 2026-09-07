@@ -1,0 +1,7 @@
+SET QUOTED_IDENTIFIER ON;
+GO
+
+ALTER TABLE [dbo].[Inquiries] ADD
+    [AdminReply] NVARCHAR(MAX) NULL,
+    [RepliedAt] DATETIME2 NULL;
+GO
