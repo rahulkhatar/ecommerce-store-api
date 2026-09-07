@@ -34,7 +34,7 @@ async function handleAddToCart() {
     :to="{ name: 'product-detail', params: { id: product.id } }"
     class="group flex gap-5 rounded border border-gray-200 bg-white p-4 transition hover:shadow-md"
   >
-    <div class="relative flex h-44 w-44 shrink-0 items-center justify-center overflow-hidden rounded bg-white">
+    <div class="relative flex h-44 w-44 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
       <div
         v-if="!isLoaded && !hasError && product.imageUrl"
         class="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-300"

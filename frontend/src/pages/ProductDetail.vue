@@ -87,7 +87,7 @@ watch(() => props.id, load)
     <p v-else-if="error" class="text-red-600">{{ error }}</p>
 
     <div v-else-if="product" class="grid gap-6 md:grid-cols-2">
-      <div class="flex h-80 items-center justify-center rounded border border-gray-200 bg-white text-gray-400 shadow-sm md:h-[28rem]">
+      <div class="flex h-80 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm md:h-[28rem]">
         <img v-if="product.imageUrl" :src="resolveImageUrl(product.imageUrl)" :alt="product.name" class="h-full w-full object-contain p-6" />
         <span v-else>No image</span>
       </div>

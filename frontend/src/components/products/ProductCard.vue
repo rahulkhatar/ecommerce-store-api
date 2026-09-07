@@ -33,7 +33,7 @@ const linkTarget = computed(() =>
     :to="linkTarget"
     class="group flex h-full flex-col rounded border border-gray-200 bg-white p-3 transition hover:shadow-lg hover:border-gray-300"
   >
-    <div class="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded bg-white">
+    <div class="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-white">
       <div
         v-if="!isLoaded && !hasError && product.imageUrl"
         class="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-300"
