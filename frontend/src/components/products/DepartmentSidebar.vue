@@ -132,27 +132,29 @@ function isActivePreset(preset) {
           </li>
         </ul>
 
-        <form class="mt-3 flex items-center gap-1.5" @submit.prevent="applyDraft">
-          <span class="text-sm text-gray-500">$</span>
-          <input
-            v-model="minDraft"
-            type="number"
-            min="0"
-            placeholder="Min"
-            class="w-14 rounded border border-gray-300 px-1.5 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#FF9900]"
-          />
-          <span class="text-sm text-gray-400">-</span>
-          <span class="text-sm text-gray-500">$</span>
-          <input
-            v-model="maxDraft"
-            type="number"
-            min="0"
-            placeholder="Max"
-            class="w-14 rounded border border-gray-300 px-1.5 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#FF9900]"
-          />
+        <form class="mt-3 space-y-2" @submit.prevent="applyDraft">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm text-gray-500">$</span>
+            <input
+              v-model="minDraft"
+              type="number"
+              min="0"
+              placeholder="Min"
+              class="w-0 min-w-0 flex-1 rounded border border-gray-300 px-1.5 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#FF9900]"
+            />
+            <span class="text-sm text-gray-400">-</span>
+            <span class="text-sm text-gray-500">$</span>
+            <input
+              v-model="maxDraft"
+              type="number"
+              min="0"
+              placeholder="Max"
+              class="w-0 min-w-0 flex-1 rounded border border-gray-300 px-1.5 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#FF9900]"
+            />
+          </div>
           <button
             type="submit"
-            class="rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
+            class="w-full rounded border border-gray-300 bg-gray-50 px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
           >
             Go
           </button>
